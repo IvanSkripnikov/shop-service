@@ -10,8 +10,8 @@ ADD ./app /go/src/app
 ADD ./app/log /go/log
 
 RUN cd /go/src/app && \
-    go install github.com/IvanSkripnikov/golang_otus_project
+    go install github.com/IvanSkripnikov/loyalty_system
 
 WORKDIR "/go"
 
-ENTRYPOINT golang_otus_project
+ENTRYPOINT loyalty_system
