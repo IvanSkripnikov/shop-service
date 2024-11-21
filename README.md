@@ -6,15 +6,9 @@ MySQL is used as the data store.
 
 ## Endpoints
 
-Method | Path                                                        | Description                                                                         
----    |-------------------------------------------------------------|-------------------------------------------------------------------------------------
-GET    | `/`                                                         | Main page                                                                           |
-GET    | `/banners`                                                  | Get all banners                                                                     |
-GET    | `/banners/{id}`                                             | Get banner by id                                                                    |
-POST   | `/add_banner_to_slot`                                       | Add banner to slot with raw parameters banner={bannerId}&slot={slotId}              |
-POST   | `/event_click`                                              | Add event click with raw parameters banner={bannerId}&slot={slotId}&group={groupId} |
-DELETE | `/remove_banner_from_slot/?banner={bannerId}&slot={slotId}` | Remove banner from slot                                                             |
-GET    | `/get_banner_for_show/?group={groupId}&slot={slotId}`       | Get relevant banner                                                                 |
+Method | Path       | Description |                                                                         
+---    |------------|--------------
+GET    | `/health/` | Health page |
 
 ## Usage
 
