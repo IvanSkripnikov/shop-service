@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/IvanSkripnikov/loyalty_system/logger"
+	"loyalty_system/logger"
 )
 
 func HealthCheck(w http.ResponseWriter, _ *http.Request) {

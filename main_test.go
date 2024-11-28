@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/IvanSkripnikov/loyalty_system/controllers"
+	"loyalty_system/controllers"
 )
 
 func TestHealth(t *testing.T) {

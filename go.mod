@@ -1,3 +1,3 @@
-module github.com/IvanSkripnikov/loyalty_system
+module loyalty_system
 
 go 1.19

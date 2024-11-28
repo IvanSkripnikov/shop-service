@@ -3,7 +3,7 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/IvanSkripnikov/loyalty_system/helpers"
+	"loyalty_system/helpers"
 )
 
 func HealthCheck(w http.ResponseWriter, r *http.Request) {

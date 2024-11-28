@@ -6,8 +6,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/IvanSkripnikov/loyalty_system/controllers"
-	"github.com/IvanSkripnikov/loyalty_system/logger"
+	"loyalty_system/controllers"
+	"loyalty_system/logger"
 )
 
 type route struct {
