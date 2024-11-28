@@ -7,12 +7,7 @@ import (
 	"testing"
 
 	"github.com/IvanSkripnikov/loyalty_system/controllers"
-	"github.com/IvanSkripnikov/loyalty_system/database"
 )
-
-func init() {
-	database.InitDataBase("localhost")
-}
 
 func TestHealth(t *testing.T) {
 	expected := "{\"status\": \"OK\"}"
