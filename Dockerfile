@@ -1,14 +1,25 @@
-FROM golang:1.19-alpine
+FROM golang:1.20.10-alpine3.17 as Builder
 
-WORKDIR /app
+RUN apk add --update  && \
+    apk add --no-cache alpine-conf tzdata git
 
-COPY go.mod go.sum ./
+ADD ./src /go/src/loyalty_system
+ADD ./src/config /go/config
 
-COPY *.go ./
+RUN cd /go/src/loyalty_system && \
+    go install loyalty_system
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /loyalty_system
+FROM alpine:3.18.4 as App
+
+COPY --from=Builder /go/bin/* /go/bin/loyalty_system
+COPY --from=Builder /go/config /go/config
 
 EXPOSE 8080
 
+#ENV TZ=Asia/Nicosia
+
+WORKDIR "/go"
+ENTRYPOINT ["/go/bin/loyalty_system"]
+
 # Run
-CMD [ "/loyalty_system" ]
+#CMD [ "/loyalty_system" ]
