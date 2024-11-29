@@ -3,8 +3,12 @@ FROM golang:1.20.10-alpine3.17 as Builder
 RUN apk add --update  && \
     apk add --no-cache alpine-conf tzdata git
 
-ADD ./src /go/src/loyalty_system
-ADD ./src/config /go/config
+RUN git clone https://github.com/IvanSkripnikov/loyalty_system.git && \
+    cd loyalty_system && \
+    git checkout main
+
+ADD ./loyalty_system/src /go/src/loyalty_system
+ADD ./loyalty_system/src/config /go/config
 
 RUN cd /go/src/loyalty_system && \
     go install loyalty_system
@@ -16,10 +20,5 @@ COPY --from=Builder /go/config /go/config
 
 EXPOSE 8080
 
-#ENV TZ=Asia/Nicosia
-
 WORKDIR "/go"
 ENTRYPOINT ["/go/bin/loyalty_system"]
-
-# Run
-#CMD [ "/loyalty_system" ]
