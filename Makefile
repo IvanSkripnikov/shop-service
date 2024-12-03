@@ -7,4 +7,4 @@ build:
 	$(DOCKER) build --tag $(SERVICE) .
 
 run: build
-	$(DOCKER) run --publish 8080:8080 $(SERVICE) -d
+	$(DOCKER) run -d --publish 8080:8080 $(SERVICE) -d
