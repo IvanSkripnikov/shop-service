@@ -27,7 +27,7 @@ func initHTTPServer() {
 	if err != nil {
 		errMessage := fmt.Sprintf("Can't init HTTP server: %v", err)
 
-		logger.SendToErrorLog(errMessage)
+		logger.Error(errMessage)
 	}
 }
 

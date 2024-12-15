@@ -18,7 +18,7 @@ func writeSuccess(w http.ResponseWriter, message string) {
 
 	_, err := fmt.Fprint(w, message)
 	if err != nil {
-		logger.SendToErrorLog(fmt.Sprintf("write success error %s", err.Error()))
+		logger.Error(fmt.Sprintf("write success error %s", err.Error()))
 
 		return
 	}

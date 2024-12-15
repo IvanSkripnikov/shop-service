@@ -2,94 +2,48 @@ package logger
 
 import (
 	"flag"
-	"fmt"
+	"io"
 	"log"
 	"os"
 	"strconv"
-	"strings"
+
+	"github.com/sirupsen/logrus"
+	easy "github.com/t-tomalak/logrus-easy-formatter"
 )
 
 const (
-	serviceNameDefault = "loyalty-system"
-
-	panicLevel = 0
-
-	fatalLevel = 1
-
-	errorLevel = 2
-
-	warnLevel = 3
-
-	infoLevel = 4
-
-	debugLevel = 5
-
-	traceLevel = 6
+	defaultLogLevel    = "2"
+	serviceNameDefault = "service-name"
 )
 
-var errorLevels = map[int]string{
-	panicLevel: "panic",
-
-	fatalLevel: "fatal",
-
-	errorLevel: "error",
-
-	warnLevel: "warning",
-
-	infoLevel: "info",
-
-	debugLevel: "debug",
-
-	traceLevel: "trace",
+var errorLevels = map[logrus.Level]string{
+	logrus.PanicLevel: "panic",
+	logrus.FatalLevel: "fatal",
+	logrus.ErrorLevel: "error",
+	logrus.WarnLevel:  "warning",
+	logrus.InfoLevel:  "info",
+	logrus.DebugLevel: "debug",
+	logrus.TraceLevel: "trace",
 }
 
-func SendToPanicLog(message string) {
-	pushLogger(message, panicLevel)
-
-	os.Exit(1)
-}
-
-func SendToFatalLog(message string) {
-	pushLogger(message, fatalLevel)
-
-	os.Exit(1)
-}
-
-func SendToErrorLog(message string) {
-	pushLogger(message, errorLevel)
-}
-
-func SendToWarningLog(message string) {
-	pushLogger(message, warnLevel)
-}
-
-func SendToInfoLog(message string) {
-	pushLogger(message, infoLevel)
-}
-
-func SendToDebugLog(message string) {
-	pushLogger(message, debugLevel)
-}
-
-func SendToTraceLog(message string) {
-	pushLogger(message, traceLevel)
-}
-
-func pushLogger(message string, currentLevel int) {
+func pushLogger(message string, currentLevel logrus.Level) {
+	// TODO вынести всё в envs
+	//hasWriteLogToFile := os.Getenv("HAS_WRITE_LOG_TO_FILE")
+	hasWriteLogToFile := "1"
+	hasWriteLogToFileValue, _ := strconv.ParseBool(hasWriteLogToFile)
 	configLogLevel := os.Getenv("LOG_LEVEL")
 
 	if len(configLogLevel) == 0 {
-		configLogLevel = "2"
+		configLogLevel = defaultLogLevel
 	}
 
 	levelValue, errLevel := strconv.Atoi(configLogLevel)
-
-	var logLevel int
+	var logLevel logrus.Level
 
 	if errLevel != nil {
 		log.Println(errLevel)
 	} else {
-		logLevel = levelValue
+		logLevel = logrus.Level(levelValue)
 	}
 
 	if currentLevel > logLevel {
@@ -97,48 +51,37 @@ func pushLogger(message string, currentLevel int) {
 	}
 
 	flag.Parse()
+	var logWriter io.Writer
 
-	logsFilePath := getLogFilePath()
+	if hasWriteLogToFileValue {
+		logsFilePath := getLogFilePath()
+		logFile, errOpen := os.OpenFile(logsFilePath, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0777)
+		if errOpen != nil {
+			log.Fatalf("Can not open log file, error: %v", errOpen)
+		}
 
-	logFile, err := os.OpenFile(logsFilePath, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0o777)
-	if err != nil {
-		log.Fatal(err)
+		defer func() {
+			errClose := logFile.Close()
+			if errClose != nil {
+				log.Fatalf("Can not close log file, error: %v", errClose)
+			}
+		}()
+
+		logWriter = io.MultiWriter(os.Stdout, logFile)
+	} else {
+		logWriter = os.Stdout
 	}
 
-	defer func(logFile *os.File) {
-		err := logFile.Close()
-		if err != nil {
-			log.Fatal(err)
-		}
-	}(logFile)
+	logger := &logrus.Logger{
+		Out:   logWriter,
+		Level: logrus.TraceLevel,
+		Formatter: &easy.Formatter{
+			TimestampFormat: "2006-01-02 15:04:05.000",
+			LogFormat:       "[%time%] %msg%",
+		},
+	}
 
 	levelMessage := errorLevels[currentLevel]
-
-	fmt.Printf("[%s] [%s] [%s] %s \n", getHostName(), serviceNameDefault, levelMessage, message)
-}
-
-func getLogFilePath() string {
-	containerName := os.Getenv("CONTAINER_NAME")
-
-	if len(containerName) == 0 {
-		containerName = serviceNameDefault
-	}
-
-	return fmt.Sprintf("./log/%s.log", containerName)
-}
-
-func getHostName() string {
-	var hostName string
-
-	hostNameFile, err := os.ReadFile("/etc/hostname")
-
-	if err != nil {
-		serverName, _ := os.Hostname()
-
-		hostName = serverName
-	} else {
-		hostName = strings.ReplaceAll(string(hostNameFile), "\n", "")
-	}
-
-	return hostName
+	logger.Printf("[%s] [%s] [%s] %s \n",
+		getHostName(), getContainerName(), levelMessage, message)
 }
