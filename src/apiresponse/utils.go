@@ -12,10 +12,12 @@ import (
 func InitRoutes(routes map[string]func(http.ResponseWriter, *http.Request)) {
 	// Инициализация эндпоинов для Rest API
 	for route, handler := range routes {
+		logger.Debug("Route " + route)
 		http.HandleFunc(route, handler)
 	}
 
 	// Вешаем обработчик для главной страницы и логирования ошибочных запросов
+	logger.Debug("Route /")
 	http.HandleFunc("/", homeHandler)
 }
 
@@ -28,7 +30,7 @@ func SendResponse(w http.ResponseWriter, data ResponseData, caption string) {
 
 		return
 	} else {
-		logger.Debug(fmt.Sprintf("Data for receiving %s has been successfully serialized.", caption))
+		logger.Info(fmt.Sprintf("Data for receiving %s has been successfully serialized.", caption))
 	}
 
 	w.Header().Set("Content-Type", "application/json")

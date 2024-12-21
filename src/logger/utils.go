@@ -8,9 +8,7 @@ import (
 
 // Получить имя текущего сервиса.
 func getContainerName() string {
-	// TODO вынести всё в envs
-	//containerName := os.Getenv("CONTAINER_NAME")
-	containerName := "container-name"
+	containerName := os.Getenv("CONTAINER_NAME")
 
 	if len(containerName) == 0 {
 		containerName = serviceNameDefault

@@ -27,9 +27,7 @@ var errorLevels = map[logrus.Level]string{
 }
 
 func pushLogger(message string, currentLevel logrus.Level) {
-	// TODO вынести всё в envs
-	//hasWriteLogToFile := os.Getenv("HAS_WRITE_LOG_TO_FILE")
-	hasWriteLogToFile := "1"
+	hasWriteLogToFile := os.Getenv("HAS_WRITE_LOG_TO_FILE")
 	hasWriteLogToFileValue, _ := strconv.ParseBool(hasWriteLogToFile)
 	configLogLevel := os.Getenv("LOG_LEVEL")
 

@@ -8,7 +8,7 @@ import (
 )
 
 func HealthCheck(w http.ResponseWriter, _ *http.Request) {
-	writeSuccess(w, "{\"status\": \"OK\"}")
+	writeSuccess(w, "{\"status\": \"OK1\"}")
 }
 
 // -------------PRIVATE----------------------
