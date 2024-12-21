@@ -6,46 +6,46 @@ import (
 	"loyalty_system/helpers"
 )
 
-func GetUserCategoriesListV1(w http.ResponseWriter, r *http.Request) {
+func GetItemsListV1(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		helpers.GetUserCategoryList(w, r)
+		helpers.GetItemsList(w, r)
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
 }
 
-func GetUserCategoryV1(w http.ResponseWriter, r *http.Request) {
+func GetItemV1(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		helpers.GetUserCategory(w, r)
+		helpers.GetItem(w, r)
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
 }
 
-func CreateUserCategoryV1(w http.ResponseWriter, r *http.Request) {
+func CreateItemV1(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
-		helpers.CreateUserCategory(w, r)
+		helpers.CreateItem(w, r)
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
 }
 
-func UpdateUserCategoryV1(w http.ResponseWriter, r *http.Request) {
+func UpdateItemV1(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPut:
-		helpers.UpdateUserCategory(w, r)
+		helpers.UpdateItem(w, r)
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
 }
 
-func RemoveUserCategoryV1(w http.ResponseWriter, r *http.Request) {
+func RemoveItemV1(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodDelete:
-		helpers.RemoveUserCategory(w, r)
+		helpers.RemoveItem(w, r)
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
