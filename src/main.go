@@ -8,6 +8,5 @@ import (
 func main() {
 	logger.Debug("Service starting")
 	httphandler.InitHTTPServer()
-	//apiresponse.InitRoutes(api.Routes)
 	logger.Info("Service started")
 }
