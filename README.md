@@ -4,14 +4,14 @@ This repository is a template for a Todo application in the Golang that can run 
 
 ## Endpoints
 
-Method | Path               | Description |                                                                         
----    |--------------------|--------------
-GET    | `/health`          | Health page |
-GET    | `/v1/users/list`   | Health page |
-GET    | `/v1/users/get`    | Health page |
-POST   | `/v1/users/create` | Health page |
-PUT    | `/v1/users/update` | Health page |
-DELETE | `/v1/users/block`  | Health page |
+Method | Path               | Description                                   |                                                                         
+---    |--------------------|------------------------------------------------
+GET    | `/health`          | Health page                                   |
+GET    | `/v1/users/list`   | Получение пользователей системы по параметрам |
+GET    | `/v1/users/get`    | Получение пользователя системы                |
+POST   | `/v1/users/create` | Создание нового пользователя                  |
+PUT    | `/v1/users/update` | Изменение данных пользователя                 |
+DELETE | `/v1/users/block`  | Блокировка/удаление пользователя              |
 
 ## Usage
 
