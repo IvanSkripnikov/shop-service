@@ -6,11 +6,11 @@ import (
 	"loyalty_system/helpers"
 )
 
-func HealthCheck(w http.ResponseWriter, r *http.Request) {
+func GetUsersListV1(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 
-		helpers.HealthCheck(w, r)
+		helpers.GetUsersList(w, r)
 
 	default:
 

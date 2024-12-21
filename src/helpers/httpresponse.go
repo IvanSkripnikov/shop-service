@@ -1,4 +1,4 @@
-package apiresponse
+package helpers
 
 import (
 	"encoding/json"
@@ -8,18 +8,7 @@ import (
 	"loyalty_system/logger"
 )
 
-// InitRoutes Инициализация маршрутов для Rest API.
-func InitRoutes(routes map[string]func(http.ResponseWriter, *http.Request)) {
-	// Инициализация эндпоинов для Rest API
-	for route, handler := range routes {
-		logger.Debug("Route " + route)
-		http.HandleFunc(route, handler)
-	}
-
-	// Вешаем обработчик для главной страницы и логирования ошибочных запросов
-	logger.Debug("Route /")
-	http.HandleFunc("/", homeHandler)
-}
+type ResponseData map[string]interface{}
 
 // SendResponse Отправить ответ клиенту.
 func SendResponse(w http.ResponseWriter, data ResponseData, caption string) {
@@ -33,7 +22,7 @@ func SendResponse(w http.ResponseWriter, data ResponseData, caption string) {
 		logger.Info(fmt.Sprintf("Data for receiving %s has been successfully serialized.", caption))
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	_, errWrite := w.Write(response)
 	if errWrite != nil {
 		logger.Error(fmt.Sprintf("Failed to send %s data. Error: %v", caption, errWrite))

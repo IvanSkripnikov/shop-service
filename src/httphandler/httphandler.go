@@ -6,19 +6,8 @@ import (
 	"regexp"
 	"strings"
 
-	"loyalty_system/controllers"
 	"loyalty_system/logger"
 )
-
-type route struct {
-	method  string
-	regex   *regexp.Regexp
-	handler http.HandlerFunc
-}
-
-var routes = []route{
-	newRoute(http.MethodGet, "/health", controllers.HealthCheck),
-}
 
 func InitHTTPServer() {
 	http.HandleFunc("/", Serve)
