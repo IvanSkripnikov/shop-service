@@ -1,9 +1,9 @@
 package models
 
-type DBConfig struct {
+type Database struct {
+	Address  string
+	Port     int
 	User     string
 	Password string
-	Protocol string
-	Address  string
-	Database string
+	DB       string
 }
