@@ -40,8 +40,10 @@ func InitDataBase(config models.Database) (*sql.DB, error) {
 }
 
 func GetDatabaseConnectionString(config models.Database) string {
-	return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s",
+	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s",
 		config.User, config.Password, config.Address, config.Port, config.DB)
+	logger.Info(connectionString)
+	return connectionString
 }
 
 // CreateTables Выполнить запросы на создание таблиц
