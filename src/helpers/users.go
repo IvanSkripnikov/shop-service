@@ -1,12 +1,36 @@
 package helpers
 
 import (
+	"loyalty_system/logger"
+	"loyalty_system/models"
 	"net/http"
 )
 
 func GetUsersList(w http.ResponseWriter, _ *http.Request) {
+	var users []models.User
+
+	query := "SELECT id, login, password, created, updated, active FROM users"
+	rows, err := DB.Query(query)
+	if err != nil {
+		logger.Error(err.Error())
+	}
+
+	defer func() {
+		_ = rows.Close()
+		_ = rows.Err()
+	}()
+
+	for rows.Next() {
+		user := models.User{}
+		if err = rows.Scan(&user.ID, &user.Login, &user.Password, &user.Created, &user.Updated, &user.Active); err != nil {
+			logger.Error(err.Error())
+			continue
+		}
+		users = append(users, user)
+	}
+
 	data := ResponseData{
-		"usersList": "OK",
+		"usersList": users,
 	}
 	SendResponse(w, data, "/v1/users/list")
 }

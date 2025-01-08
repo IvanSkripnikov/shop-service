@@ -1,0 +1,1 @@
+INSERT INTO users (login, password, created, updated) VALUES ('admin', 'admin', CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP());
