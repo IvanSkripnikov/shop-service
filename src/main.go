@@ -24,7 +24,7 @@ func main() {
 	}
 
 	// выполнение миграций
-	//helpers.CreateTables()
+	helpers.CreateTables()
 
 	// инициализация REST-api
 	httphandler.InitHTTPServer()
