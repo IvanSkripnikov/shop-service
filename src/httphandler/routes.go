@@ -23,7 +23,7 @@ var routes = []route{
 	newRoute(http.MethodDelete, "/v1/users/remove-loyalty", controllers.RemoveLoyaltyV1),
 	newRoute(http.MethodPost, "/v1/users/create", controllers.CreateUserV1),
 	newRoute(http.MethodPut, "/v1/users/update", controllers.UpdateUserV1),
-	newRoute(http.MethodPost, "/v1/users/delete/([0-9]+)", controllers.BlockUserV1),
+	newRoute(http.MethodDelete, "/v1/users/delete/([0-9]+)", controllers.BlockUserV1),
 	newRoute(http.MethodPost, "/v1/users/reset-password", controllers.ResetUserPasswordV1),
 	newRoute(http.MethodGet, "/v1/users/statistics", controllers.GetStatisticsV1),
 	// users categories

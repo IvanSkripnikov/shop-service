@@ -27,11 +27,21 @@ func formatResponse(w http.ResponseWriter, httpStatus int, category string) {
 
 func checkError(w http.ResponseWriter, err error, category string) bool {
 	if err != nil {
-		logger.Errorf("Internal error %s", err.Error())
-		w.WriteHeader(http.StatusInternalServerError)
-		data := ResponseData{
-			"error": "Internal error",
+		logger.Errorf("Runtime error %s", err.Error())
+
+		var data ResponseData
+		if errors.Is(err, sql.ErrNoRows) {
+			w.WriteHeader(http.StatusNotFound)
+			data = ResponseData{
+				"error": "Data not found",
+			}
+		} else {
+			w.WriteHeader(http.StatusInternalServerError)
+			data = ResponseData{
+				"error": "Internal error",
+			}
 		}
+
 		SendResponse(w, data, category)
 
 		return true

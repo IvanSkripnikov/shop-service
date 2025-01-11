@@ -62,7 +62,7 @@ func UpdateUserV1(w http.ResponseWriter, r *http.Request) {
 
 func BlockUserV1(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
-	case http.MethodPost:
+	case http.MethodDelete:
 		helpers.BlockUser(w, r)
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)

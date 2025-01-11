@@ -13,7 +13,7 @@ func GetUsersList(w http.ResponseWriter, _ *http.Request) {
 	category := "/v1/users/list"
 	var users []models.User
 
-	query := "SELECT id, login, password, created, updated, active FROM users WHERE active = 1"
+	query := "SELECT id, username, first_name, last_name, email, phone, created, updated, active FROM users WHERE active = 1"
 	rows, err := DB.Query(query)
 	if err != nil {
 		logger.Error(err.Error())
@@ -26,7 +26,7 @@ func GetUsersList(w http.ResponseWriter, _ *http.Request) {
 
 	for rows.Next() {
 		user := models.User{}
-		if err = rows.Scan(&user.ID, &user.Login, &user.Password, &user.Created, &user.Updated, &user.Active); err != nil {
+		if err = rows.Scan(&user.ID, &user.UserName, &user.FirstName, &user.LastName, &user.Email, &user.Phone, &user.Created, &user.Updated, &user.Active); err != nil {
 			logger.Error(err.Error())
 			continue
 		}
@@ -49,7 +49,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	query := "SELECT id, login, created, updated, active from users WHERE id = ? AND active = 1"
+	query := "SELECT id, username, first_name, last_name, email, phone, created, updated, active FROM users WHERE id = ? AND active = 1"
 	rows, err := DB.Prepare(query)
 
 	if checkError(w, err, category) {
@@ -60,7 +60,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 		_ = rows.Close()
 	}()
 
-	err = rows.QueryRow(user.ID).Scan(&user.ID, &user.Login, &user.Created, &user.Updated, &user.Active)
+	err = rows.QueryRow(user.ID).Scan(&user.ID, &user.UserName, &user.FirstName, &user.LastName, &user.Email, &user.Phone, &user.Created, &user.Updated, &user.Active)
 	if checkError(w, err, category) {
 		return
 	}
@@ -94,8 +94,9 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	query := "INSERT INTO users (login, password, created, updated) VALUES (?, ?, CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP())"
-	rows, err := DB.Query(query, user.Login, user.Password)
+	query := "INSERT INTO users (username, first_name, last_name, email, phone, created, updated) VALUES (?, ?, ?, ?, ?, ?, ?)"
+	currentTimestamp := GetCurrentTimestamp()
+	rows, err := DB.Query(query, user.UserName, user.FirstName, user.LastName, user.Email, user.Phone, currentTimestamp, currentTimestamp)
 
 	if checkError(w, err, category) {
 		return
@@ -121,8 +122,14 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	query := "UPDATE users SET login = ?, updated = CURRENT_TIMESTAMP() WHERE id = ?"
-	rows, err := DB.Query(query, user.Login, user.ID)
+	if !isExists("SELECT * FROM users WHERE id = ?", user.ID) {
+		formatResponse(w, http.StatusNotFound, category)
+		return
+	}
+
+	currentTimestamp := GetCurrentTimestamp()
+	query := "UPDATE users SET username = ?, first_name = ?, last_name = ?, email = ?, phone = ?, updated = ? WHERE id = ?"
+	rows, err := DB.Query(query, user.UserName, user.FirstName, user.LastName, user.Email, user.Phone, currentTimestamp, user.ID)
 
 	if checkError(w, err, category) {
 		return
