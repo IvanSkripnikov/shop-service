@@ -49,6 +49,11 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !isExists("SELECT * FROM users WHERE id = ?", user.ID) {
+		formatResponse(w, http.StatusNotFound, category)
+		return
+	}
+
 	query := "SELECT id, username, first_name, last_name, email, phone, created, updated, active FROM users WHERE id = ? AND active = 1"
 	rows, err := DB.Prepare(query)
 

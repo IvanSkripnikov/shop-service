@@ -1,1 +1,1 @@
-INSERT INTO users (username, first_name, last_name, email, phone) VALUES ('admin', 'John', 'Doe', 'johndoe@example.com', '+7800800800');
+INSERT INTO users (username, first_name, last_name, email, phone, created, updated) VALUES ('admin', 'John', 'Doe', 'johndoe@example.com', '+7800800800',  CURRENT_TIMESTAMP(),  CURRENT_TIMESTAMP());
