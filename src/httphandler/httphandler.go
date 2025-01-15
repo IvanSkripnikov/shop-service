@@ -7,10 +7,15 @@ import (
 	"strings"
 
 	"loyalty_system/logger"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func InitHTTPServer() {
+	// подключение роутов
 	http.HandleFunc("/", Serve)
+	// подключение prometheus
+	http.Handle("/metrics", promhttp.Handler())
 
 	err := http.ListenAndServe(":8080", nil) //nolint:gosec
 	if err != nil {
