@@ -5,7 +5,9 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"time"
 
+	"loyalty_system/helpers"
 	"loyalty_system/logger"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -30,8 +32,9 @@ func newRoute(method, pattern string, handler http.HandlerFunc) route {
 }
 
 func Serve(w http.ResponseWriter, r *http.Request) {
-	var allow []string
+	start := time.Now()
 
+	var allow []string
 	found := false
 
 	for _, routeUnit := range routes {
@@ -40,19 +43,22 @@ func Serve(w http.ResponseWriter, r *http.Request) {
 		if len(matches) > 0 {
 			if r.Method != routeUnit.method {
 				allow = append(allow, routeUnit.method)
-
 				continue
 			}
-
 			found = true
-
 			routeUnit.handler(w, r)
 		}
 	}
 
+	defer func() {
+		method := r.Method
+		elapsed := time.Since(start).Seconds()
+		helpers.RequestsTotal.WithLabelValues(method).Inc()
+		helpers.RequestDuration.WithLabelValues(method).Observe(elapsed)
+	}()
+
 	if !found && len(allow) == 0 {
 		w.WriteHeader(http.StatusNotFound)
-
 		http.NotFound(w, r)
 
 		return
@@ -60,7 +66,6 @@ func Serve(w http.ResponseWriter, r *http.Request) {
 
 	if len(allow) > 0 {
 		w.Header().Set("Allow", strings.Join(allow, ", "))
-
 		http.Error(w, "405 method not allowed", http.StatusMethodNotAllowed)
 
 		return

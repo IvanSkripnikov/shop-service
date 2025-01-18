@@ -11,6 +11,9 @@ import (
 func main() {
 	logger.Debug("Service starting")
 
+	// регистрация общих метрик
+	helpers.RegisterCommonMetrics()
+
 	// настройка всех конфигов
 	config, err := models.LoadConfig()
 	if err != nil {
