@@ -9,11 +9,8 @@ import (
 func HealthCheck(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-
 		helpers.HealthCheck(w, r)
-
 	default:
-
-		w.WriteHeader(http.StatusMethodNotAllowed)
+		helpers.FormatResponse(w, http.StatusMethodNotAllowed, "/health")
 	}
 }

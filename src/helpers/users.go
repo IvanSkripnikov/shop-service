@@ -36,7 +36,7 @@ func GetUsersList(w http.ResponseWriter, _ *http.Request) {
 	data := ResponseData{
 		"data": users,
 	}
-	SendResponse(w, data, category)
+	SendResponse(w, data, category, http.StatusOK)
 }
 
 func GetUser(w http.ResponseWriter, r *http.Request) {
@@ -45,12 +45,12 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 
 	user.ID, _ = getIDFromRequestString(strings.TrimSpace(r.URL.Path))
 	if user.ID == 0 {
-		formatResponse(w, http.StatusUnprocessableEntity, category)
+		FormatResponse(w, http.StatusUnprocessableEntity, category)
 		return
 	}
 
 	if !isExists("SELECT * FROM users WHERE id = ?", user.ID) {
-		formatResponse(w, http.StatusNotFound, category)
+		FormatResponse(w, http.StatusNotFound, category)
 		return
 	}
 
@@ -73,21 +73,21 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	data := ResponseData{
 		"data": user,
 	}
-	SendResponse(w, data, category)
+	SendResponse(w, data, category, http.StatusOK)
 }
 
 func AddLoyalty(w http.ResponseWriter, _ *http.Request) {
 	data := ResponseData{
 		"addLoyalty": "OK",
 	}
-	SendResponse(w, data, "/v1/users/add-loyalty")
+	SendResponse(w, data, "/v1/users/add-loyalty", http.StatusOK)
 }
 
 func RemoveLoyalty(w http.ResponseWriter, _ *http.Request) {
 	data := ResponseData{
 		"removeLoyalty": "OK",
 	}
-	SendResponse(w, data, "/v1/users/remove-loyalty")
+	SendResponse(w, data, "/v1/users/remove-loyalty", http.StatusOK)
 }
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
@@ -115,7 +115,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	data := ResponseData{
 		"message": "User successfully created!",
 	}
-	SendResponse(w, data, category)
+	SendResponse(w, data, category, http.StatusOK)
 }
 
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
@@ -128,7 +128,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !isExists("SELECT * FROM users WHERE id = ?", user.ID) {
-		formatResponse(w, http.StatusNotFound, category)
+		FormatResponse(w, http.StatusNotFound, category)
 		return
 	}
 
@@ -148,7 +148,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	data := ResponseData{
 		"message": "User successfully updated!",
 	}
-	SendResponse(w, data, category)
+	SendResponse(w, data, category, http.StatusOK)
 }
 
 func BlockUser(w http.ResponseWriter, r *http.Request) {
@@ -157,12 +157,12 @@ func BlockUser(w http.ResponseWriter, r *http.Request) {
 
 	user.ID, _ = getIDFromRequestString(strings.TrimSpace(r.URL.Path))
 	if user.ID == 0 {
-		formatResponse(w, http.StatusUnprocessableEntity, category)
+		FormatResponse(w, http.StatusUnprocessableEntity, category)
 		return
 	}
 
 	if !isExists("SELECT * FROM users WHERE id = ?", user.ID) {
-		formatResponse(w, http.StatusNotFound, category)
+		FormatResponse(w, http.StatusNotFound, category)
 		return
 	}
 
@@ -181,19 +181,19 @@ func BlockUser(w http.ResponseWriter, r *http.Request) {
 	data := ResponseData{
 		"message": "User successfully removed!",
 	}
-	SendResponse(w, data, category)
+	SendResponse(w, data, category, http.StatusOK)
 }
 
 func ResetPassword(w http.ResponseWriter, _ *http.Request) {
 	data := ResponseData{
 		"resetPassword": "OK",
 	}
-	SendResponse(w, data, "/v1/users/reset-password")
+	SendResponse(w, data, "/v1/users/reset-password", http.StatusOK)
 }
 
 func GetStatistics(w http.ResponseWriter, _ *http.Request) {
 	data := ResponseData{
 		"getStatistics": "OK",
 	}
-	SendResponse(w, data, "/v1/users/statistics")
+	SendResponse(w, data, "/v1/users/statistics", http.StatusOK)
 }

@@ -11,11 +11,12 @@ import (
 type ResponseData map[string]interface{}
 
 // SendResponse Отправить ответ клиенту.
-func SendResponse(w http.ResponseWriter, data ResponseData, caption string) {
+func SendResponse(w http.ResponseWriter, data ResponseData, caption string, httpStatusCode int) {
 	response, errEncode := json.Marshal(data)
 	if errEncode != nil {
 		logger.Error(fmt.Sprintf("Failed to serialize data to get %s. Error: %v", caption, errEncode))
 		http.Error(w, errEncode.Error(), http.StatusInternalServerError)
+		addHttpStatusCodeToPrometheus(http.StatusInternalServerError)
 
 		return
 	} else {
@@ -27,9 +28,12 @@ func SendResponse(w http.ResponseWriter, data ResponseData, caption string) {
 	if errWrite != nil {
 		logger.Error(fmt.Sprintf("Failed to send %s data. Error: %v", caption, errWrite))
 		http.Error(w, errWrite.Error(), http.StatusInternalServerError)
+		addHttpStatusCodeToPrometheus(http.StatusInternalServerError)
 
 		return
 	} else {
 		logger.Debug(fmt.Sprintf("Data with %s sent successfully.", caption))
 	}
+
+	addHttpStatusCodeToPrometheus(httpStatusCode)
 }
