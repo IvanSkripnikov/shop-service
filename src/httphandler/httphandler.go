@@ -53,8 +53,10 @@ func Serve(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		method := r.Method
 		elapsed := time.Since(start).Seconds()
-		helpers.RequestsTotal.WithLabelValues(method).Inc()
-		helpers.RequestDuration.WithLabelValues(method).Observe(elapsed)
+		helpers.RequestsByMethodTotal.WithLabelValues(method).Inc()
+		helpers.RequestsTotal.Inc()
+		helpers.RequestLatencySummary.Observe(elapsed)
+		helpers.RequestLatencyHistogram.WithLabelValues("").Observe(elapsed)
 	}()
 
 	if !found && len(allow) == 0 {
