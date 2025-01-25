@@ -16,6 +16,9 @@ type route struct {
 var routes = []route{
 	// system
 	newRoute(http.MethodGet, "/health", controllers.HealthCheck),
+	// test
+	newRoute(http.MethodGet, "/test/error", controllers.TestError),
+	newRoute(http.MethodGet, "/test/latency", controllers.TestLongLatency),
 	// users
 	newRoute(http.MethodGet, "/v1/users/list", controllers.GetUsersListV1),
 	newRoute(http.MethodGet, "/v1/users/get/([0-9]+)", controllers.GetUserV1),
