@@ -20,6 +20,7 @@ var routes = []route{
 	newRoute(http.MethodGet, "/test/error", controllers.TestError),
 	newRoute(http.MethodGet, "/test/latency", controllers.TestLongLatency),
 	// users
+	newRoute(http.MethodGet, "/v1/users/me", controllers.GetMyInfoV1),
 	newRoute(http.MethodGet, "/v1/users/list", controllers.GetUsersListV1),
 	newRoute(http.MethodGet, "/v1/users/get/([0-9]+)", controllers.GetUserV1),
 	newRoute(http.MethodPost, "/v1/users/add-loyalty", controllers.AddLoyaltyV1),

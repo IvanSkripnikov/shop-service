@@ -76,6 +76,36 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	SendResponse(w, data, category, http.StatusOK)
 }
 
+func GetMyInfoV1(w http.ResponseWriter, r *http.Request, user models.User) {
+	category := "/v1/users/me"
+
+	if !isExists("SELECT * FROM users WHERE id = ?", user.ID) {
+		FormatResponse(w, http.StatusNotFound, category)
+		return
+	}
+
+	query := "SELECT id, username, first_name, last_name, email, phone, created, updated, active FROM users WHERE id = ? AND active = 1"
+	rows, err := DB.Prepare(query)
+
+	if checkError(w, err, category) {
+		return
+	}
+
+	defer func() {
+		_ = rows.Close()
+	}()
+
+	err = rows.QueryRow(user.ID).Scan(&user.ID, &user.UserName, &user.FirstName, &user.LastName, &user.Email, &user.Phone, &user.Created, &user.Updated, &user.Active)
+	if checkError(w, err, category) {
+		return
+	}
+
+	data := ResponseData{
+		"data": user,
+	}
+	SendResponse(w, data, category, http.StatusOK)
+}
+
 func AddLoyalty(w http.ResponseWriter, _ *http.Request) {
 	data := ResponseData{
 		"addLoyalty": "OK",

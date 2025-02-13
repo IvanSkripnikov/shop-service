@@ -6,6 +6,20 @@ import (
 	"loyalty_system/helpers"
 )
 
+func GetMyInfoV1(w http.ResponseWriter, r *http.Request) {
+	auth, user := helpers.GetAuth(r)
+	if !auth {
+		http.Redirect(w, r, "http://authenticator.default.svc.cluster.local:8080/signin", http.StatusFound)
+	}
+
+	switch r.Method {
+	case http.MethodGet:
+		helpers.GetMyInfoV1(w, r, user)
+	default:
+		helpers.FormatResponse(w, http.StatusMethodNotAllowed, "/v1/users/me")
+	}
+}
+
 func GetUsersListV1(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
