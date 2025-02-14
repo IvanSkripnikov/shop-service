@@ -1,6 +1,6 @@
 ## Overview
 
-This repository is a template for a Todo application in the Golang that can run on any platform as long as Docker is running.
+This repository is a main service of loyalty system appliaction.
 
 ## Endpoints
 
