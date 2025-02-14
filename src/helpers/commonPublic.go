@@ -9,6 +9,12 @@ import (
 	"time"
 )
 
+var Config *models.Config
+
+func InitConfig(cfg *models.Config) {
+	Config = cfg
+}
+
 func GetCurrentTimestamp() int64 {
 	return time.Now().Unix()
 }
@@ -25,7 +31,7 @@ func FormatResponse(w http.ResponseWriter, httpStatus int, category string) {
 func GetCurrentSessionData() map[string]models.User {
 	var SessionsMap map[string]map[string]models.User
 
-	resp, err := http.Get("http://authenticator.default.svc.cluster.local:8080/sessions")
+	resp, err := http.Get(Config.RedirectServiceUrl + "/sessions")
 	if err != nil {
 		logger.Infof("Can't get session data: %v", err)
 		return nil
@@ -44,7 +50,7 @@ func GetCurrentSessionData() map[string]models.User {
 func GetCurrentSessionID(r *http.Request) string {
 	cookie, err := r.Cookie("session_id")
 	if err != nil {
-		logger.Errorf("Error get cookie %v", err)
+		logger.Infof("Cookie session_id not set: %v", err)
 		return ""
 	}
 

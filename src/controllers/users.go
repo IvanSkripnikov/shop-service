@@ -9,12 +9,16 @@ import (
 func GetMyInfoV1(w http.ResponseWriter, r *http.Request) {
 	auth, user := helpers.GetAuth(r)
 	if !auth {
-		http.Redirect(w, r, "http://authenticator.default.svc.cluster.local:8080/signin", http.StatusFound)
+		http.Redirect(w, r, helpers.Config.RedirectUrl+"/signin", http.StatusFound)
+		return
 	}
 
 	switch r.Method {
 	case http.MethodGet:
-		helpers.GetMyInfoV1(w, r, user)
+		helpers.GetMyInfo(w, r, user)
+	case http.MethodPut:
+		helpers.UpdateMyInfo(w, r, user)
+		break
 	default:
 		helpers.FormatResponse(w, http.StatusMethodNotAllowed, "/v1/users/me")
 	}

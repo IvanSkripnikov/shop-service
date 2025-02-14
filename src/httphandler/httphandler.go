@@ -61,13 +61,6 @@ func Serve(w http.ResponseWriter, r *http.Request) {
 
 	if !found && len(allow) == 0 {
 		helpers.FormatResponse(w, http.StatusNotFound, "middleware")
-
-		return
-	}
-
-	if len(allow) > 0 {
-		w.Header().Set("Allow", strings.Join(allow, ", "))
-		helpers.FormatResponse(w, http.StatusMethodNotAllowed, "middleware")
 		return
 	}
 }

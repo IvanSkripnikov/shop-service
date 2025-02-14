@@ -54,6 +54,18 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// проверяем - доступно ли для данного пользователя информация
+	auth, authUser := GetAuth(r)
+	if auth {
+		if authUser.ID != user.ID {
+			data := ResponseData{
+				"user": nil,
+			}
+			SendResponse(w, data, category, http.StatusForbidden)
+			return
+		}
+	}
+
 	query := "SELECT id, username, first_name, last_name, email, phone, created, updated, active FROM users WHERE id = ? AND active = 1"
 	rows, err := DB.Prepare(query)
 
@@ -76,10 +88,11 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	SendResponse(w, data, category, http.StatusOK)
 }
 
-func GetMyInfoV1(w http.ResponseWriter, r *http.Request, user models.User) {
+func GetMyInfo(w http.ResponseWriter, r *http.Request, user models.User) {
 	category := "/v1/users/me"
 
 	if !isExists("SELECT * FROM users WHERE id = ?", user.ID) {
+		logger.Debugf("SELECT * FROM users WHERE id = %v", user.ID)
 		FormatResponse(w, http.StatusNotFound, category)
 		return
 	}
@@ -102,6 +115,42 @@ func GetMyInfoV1(w http.ResponseWriter, r *http.Request, user models.User) {
 
 	data := ResponseData{
 		"data": user,
+	}
+	SendResponse(w, data, category, http.StatusOK)
+}
+
+func UpdateMyInfo(w http.ResponseWriter, r *http.Request, user models.User) {
+	category := "/v1/users/me/update"
+
+	var userNew models.User
+	err := json.NewDecoder(r.Body).Decode(&userNew)
+
+	if checkError(w, err, category) {
+		return
+	}
+
+	if !isExists("SELECT * FROM users WHERE id = ?", user.ID) {
+		FormatResponse(w, http.StatusNotFound, category)
+		return
+	}
+
+	user = updateUserByNewData(user, userNew)
+
+	currentTimestamp := GetCurrentTimestamp()
+	query := "UPDATE users SET username = ?, first_name = ?, last_name = ?, email = ?, phone = ?, updated = ? WHERE id = ?"
+	rows, err := DB.Query(query, user.UserName, user.FirstName, user.LastName, user.Email, user.Phone, currentTimestamp, user.ID)
+
+	if checkError(w, err, category) {
+		return
+	}
+
+	defer func() {
+		_ = rows.Close()
+		_ = rows.Err()
+	}()
+
+	data := ResponseData{
+		"message": "User successfully updated!",
 	}
 	SendResponse(w, data, category, http.StatusOK)
 }
@@ -226,4 +275,27 @@ func GetStatistics(w http.ResponseWriter, _ *http.Request) {
 		"getStatistics": "OK",
 	}
 	SendResponse(w, data, "/v1/users/statistics", http.StatusOK)
+}
+
+func updateUserByNewData(user, userNew models.User) models.User {
+	if userNew.Email != "" {
+		user.Email = userNew.Email
+	}
+	if userNew.UserName != "" {
+		user.UserName = userNew.UserName
+	}
+	if userNew.FirstName != "" {
+		user.FirstName = userNew.FirstName
+	}
+	if userNew.LastName != "" {
+		user.LastName = userNew.LastName
+	}
+	if userNew.Phone != "" {
+		user.Email = userNew.Email
+	}
+	if userNew.Phone != "" {
+		user.Phone = userNew.Phone
+	}
+
+	return user
 }

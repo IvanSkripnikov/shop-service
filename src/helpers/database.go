@@ -25,8 +25,8 @@ type DataBaseConnection struct {
 var DB *sql.DB
 
 // InitDataBase подключение к БД сервиса
-func InitDataBase(config models.Database) (*sql.DB, error) {
-	dataSource := GetDatabaseConnectionString(config)
+func InitDataBase() (*sql.DB, error) {
+	dataSource := GetDatabaseConnectionString(Config.Database)
 	db, err := sql.Open("mysql", dataSource)
 
 	if err != nil {
