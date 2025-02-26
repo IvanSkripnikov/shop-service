@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"context"
 	"loyalty_system/helpers"
 	"loyalty_system/httphandler"
 	"loyalty_system/logger"
@@ -17,7 +17,7 @@ func main() {
 	// настройка всех конфигов
 	config, err := models.LoadConfig()
 	if err != nil {
-		logger.Fatal(fmt.Sprintf("Config error: %v", err))
+		logger.Fatalf("Config error: %v", err)
 	}
 
 	helpers.InitConfig(config)
@@ -25,8 +25,13 @@ func main() {
 	// настройка коннекта к БД
 	_, err = helpers.InitDataBase()
 	if err != nil {
-		logger.Fatal(fmt.Sprintf("Cant initialize DB: %v", err))
+		logger.Fatalf("Cant initialize DB: %v", err)
 	}
+
+	// настройка коннекта к redis
+	//bus := events.MakeBus()
+	//go helpers.Listen(bus)
+	helpers.InitRedis(context.Background(), config.Redis)
 
 	// выполнение миграций
 	helpers.CreateTables()

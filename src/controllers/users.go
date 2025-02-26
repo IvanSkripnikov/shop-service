@@ -24,6 +24,22 @@ func GetMyInfoV1(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func MyDepositV1(w http.ResponseWriter, r *http.Request) {
+	auth, user := helpers.GetAuth(r)
+	if !auth {
+		http.Redirect(w, r, helpers.Config.RedirectUrl+"/signin", http.StatusFound)
+		return
+	}
+
+	switch r.Method {
+	case http.MethodPut:
+		helpers.DepositMe(w, r, user)
+		break
+	default:
+		helpers.FormatResponse(w, http.StatusMethodNotAllowed, "/v1/users/me/deposit")
+	}
+}
+
 func GetUsersListV1(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:

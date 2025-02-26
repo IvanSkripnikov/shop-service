@@ -50,3 +50,18 @@ func RemoveItemV1(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
 }
+
+func BuyItemV1(w http.ResponseWriter, r *http.Request) {
+	auth, user := helpers.GetAuth(r)
+	if !auth {
+		http.Redirect(w, r, helpers.Config.RedirectUrl+"/signin", http.StatusFound)
+		return
+	}
+
+	switch r.Method {
+	case http.MethodPost:
+		helpers.BuyItem(w, r, user)
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
+	}
+}

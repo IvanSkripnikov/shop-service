@@ -3,6 +3,7 @@ package helpers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"loyalty_system/logger"
@@ -151,6 +152,27 @@ func UpdateMyInfo(w http.ResponseWriter, r *http.Request, user models.User) {
 
 	data := ResponseData{
 		"message": "User successfully updated!",
+	}
+	SendResponse(w, data, category, http.StatusOK)
+}
+
+func DepositMe(w http.ResponseWriter, r *http.Request, user models.User) {
+	category := "/v1/users/me/deposit"
+	r.ParseForm()
+	priceValue, err := strconv.ParseFloat(r.FormValue("amount"), 32)
+	if checkError(w, err, category) {
+		return
+	}
+	price := float32(priceValue)
+
+	// Производим начисление средств через сервис платежей
+	err = DepositForAccount(user.ID, price)
+	if checkError(w, err, category) {
+		return
+	}
+
+	data := ResponseData{
+		"status": "Success",
 	}
 	SendResponse(w, data, category, http.StatusOK)
 }
