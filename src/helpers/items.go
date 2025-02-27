@@ -146,7 +146,16 @@ func BuyItem(w http.ResponseWriter, r *http.Request, user models.User) {
 	}
 
 	// 4. Информируем клиента об успехе
-	_, err = redisClient.Ping(context.Background()).Result()
+	SendSuccessBuyNotification(item, user)
+
+	data := ResponseData{
+		"itemCreate": "OK",
+	}
+	SendResponse(w, data, "/v1/items/create", http.StatusOK)
+}
+
+func SendSuccessBuyNotification(item models.Item, user models.User) {
+	_, err := redisClient.Ping(context.Background()).Result()
 	if err != nil {
 		logger.Fatalf("Error connection to Redis: %v", err)
 	}
@@ -155,6 +164,7 @@ func BuyItem(w http.ResponseWriter, r *http.Request, user models.User) {
 		"title":       "Successfully buy item!",
 		"description": "You successfully buy " + item.Title,
 		"user":        user.ID,
+		"category":    "deal",
 	}
 
 	_, err = redisClient.XAdd(context.Background(), &redis.XAddArgs{
@@ -166,11 +176,6 @@ func BuyItem(w http.ResponseWriter, r *http.Request, user models.User) {
 	} else {
 		logger.Info("Succsessfuly send to stream")
 	}
-
-	data := ResponseData{
-		"itemCreate": "OK",
-	}
-	SendResponse(w, data, "/v1/items/create", http.StatusOK)
 }
 
 func WriteOffFromAccount(userID int, balance float32) error {
