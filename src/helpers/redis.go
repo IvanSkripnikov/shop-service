@@ -12,9 +12,9 @@ import (
 )
 
 var (
-	client *redis.Client
-	cont   context.Context
-	stream string
+	redisClient *redis.Client
+	cont        context.Context
+	stream      string
 )
 
 // Init Инициализация подключения к Redis.
@@ -24,7 +24,7 @@ func InitRedis(ctx context.Context, config models.Redis) {
 	}
 
 	address := net.JoinHostPort(config.Address, config.Port)
-	client = redis.NewClient(&redis.Options{
+	redisClient = redis.NewClient(&redis.Options{
 		Addr:     address,
 		Password: config.Password,
 		DB:       config.DB,

@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
@@ -10,6 +11,8 @@ import (
 
 	"loyalty_system/logger"
 	"loyalty_system/models"
+
+	"github.com/redis/go-redis/v9"
 )
 
 func GetItemsList(w http.ResponseWriter, _ *http.Request) {
@@ -143,6 +146,26 @@ func BuyItem(w http.ResponseWriter, r *http.Request, user models.User) {
 	}
 
 	// 4. Информируем клиента об успехе
+	_, err = redisClient.Ping(context.Background()).Result()
+	if err != nil {
+		logger.Fatalf("Error connection to Redis: %v", err)
+	}
+
+	messageData := map[string]interface{}{
+		"title":       "Successfully buy item!",
+		"description": "You successfully buy " + item.Title,
+		"user":        user.ID,
+	}
+
+	_, err = redisClient.XAdd(context.Background(), &redis.XAddArgs{
+		Stream: Config.Redis.Stream,
+		Values: messageData,
+	}).Result()
+	if err != nil {
+		logger.Fatalf("Error sending to redis stream: %v", err)
+	} else {
+		logger.Info("Succsessfuly send to stream")
+	}
 
 	data := ResponseData{
 		"itemCreate": "OK",
@@ -153,15 +176,23 @@ func BuyItem(w http.ResponseWriter, r *http.Request, user models.User) {
 func WriteOffFromAccount(userID int, balance float32) error {
 	newAccount := models.Account{UserID: userID, Balance: balance}
 	jsonData, err := json.Marshal(newAccount)
+
+	logger.Infof("json for buy: %v", string(jsonData))
+
+	client := &http.Client{}
+	req, err := http.NewRequest(http.MethodPut, Config.BillingServiceUrl+"/v1/account/buy", bytes.NewBuffer(jsonData))
+	req.Header.Set("Content-Type", "application/json")
 	if err != nil {
+		logger.Fatalf("Error while create PUT deposit request: %v", err)
 		return err
 	}
-	// Отправляем POST-запрос
-	resp, err := http.Post(Config.BillingServiceUrl+"/v1/account/buy", "application/json", bytes.NewBuffer(jsonData))
+
+	resp, err := client.Do(req)
+	logger.Infof("response for make deposit: %v", resp.Body)
 	if err != nil {
+		logger.Fatalf("Error while process PUT deposit request: %v", err)
 		return err
 	}
-	defer resp.Body.Close()
 
 	return nil
 }
@@ -169,14 +200,23 @@ func WriteOffFromAccount(userID int, balance float32) error {
 func DepositForAccount(userID int, balance float32) error {
 	newAccount := models.Account{UserID: userID, Balance: balance}
 	jsonData, err := json.Marshal(newAccount)
+	logger.Infof("json for deposit: %v", string(jsonData))
+
+	client := &http.Client{}
+	req, err := http.NewRequest(http.MethodPut, Config.BillingServiceUrl+"/v1/account/deposit", bytes.NewBuffer(jsonData))
+	req.Header.Set("Content-Type", "application/json")
 	if err != nil {
+		logger.Fatalf("Error while create PUT deposit request: %v", err)
 		return err
 	}
-	// Отправляем POST-запрос
-	resp, err := http.Post(Config.BillingServiceUrl+"/v1/account/deposit", "application/json", bytes.NewBuffer(jsonData))
+
+	resp, err := client.Do(req)
+	logger.Infof("response for make deposit: %v", resp.Body)
 	if err != nil {
+		logger.Fatalf("Error while process PUT deposit request: %v", err)
 		return err
 	}
+
 	defer resp.Body.Close()
 
 	return nil
