@@ -149,7 +149,7 @@ func BuyItem(w http.ResponseWriter, r *http.Request, user models.User) {
 	SendSuccessBuyNotification(item, user)
 
 	data := ResponseData{
-		"itemCreate": "OK",
+		"status": "success",
 	}
 	SendResponse(w, data, "/v1/items/create", http.StatusOK)
 }
