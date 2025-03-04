@@ -3,7 +3,7 @@ module loyalty_system
 go 1.24
 
 require (
-	github.com/IvanSkripnikov/go-logger v1.0.7
+	github.com/IvanSkripnikov/go-logger v1.0.8
 	github.com/go-sql-driver/mysql v1.9.0
 	github.com/prometheus/client_golang v1.21.1
 	github.com/redis/go-redis/v9 v9.7.1
