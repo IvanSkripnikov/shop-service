@@ -4,8 +4,9 @@ import (
 	"context"
 	"loyalty_system/helpers"
 	"loyalty_system/httphandler"
-	"loyalty_system/logger"
 	"loyalty_system/models"
+
+	logger "github.com/IvanSkripnikov/go-logger"
 )
 
 func main() {

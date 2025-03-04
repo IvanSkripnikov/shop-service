@@ -9,8 +9,9 @@ import (
 	"net/http"
 	"strings"
 
-	"loyalty_system/logger"
 	"loyalty_system/models"
+
+	logger "github.com/IvanSkripnikov/go-logger"
 
 	"github.com/redis/go-redis/v9"
 )

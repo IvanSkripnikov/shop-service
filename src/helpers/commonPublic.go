@@ -3,10 +3,11 @@ package helpers
 import (
 	"encoding/json"
 	"io"
-	"loyalty_system/logger"
 	"loyalty_system/models"
 	"net/http"
 	"time"
+
+	logger "github.com/IvanSkripnikov/go-logger"
 )
 
 var Config *models.Config

@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"loyalty_system/logger"
+	logger "github.com/IvanSkripnikov/go-logger"
 )
 
 func getIDFromRequestString(url string) (int, error) {

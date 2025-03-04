@@ -8,7 +8,8 @@ import (
 	"time"
 
 	"loyalty_system/helpers"
-	"loyalty_system/logger"
+
+	logger "github.com/IvanSkripnikov/go-logger"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )

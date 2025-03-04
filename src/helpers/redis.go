@@ -5,17 +5,14 @@ import (
 	"net"
 	"strconv"
 
-	"loyalty_system/logger"
 	"loyalty_system/models"
+
+	logger "github.com/IvanSkripnikov/go-logger"
 
 	"github.com/redis/go-redis/v9"
 )
 
-var (
-	redisClient *redis.Client
-	cont        context.Context
-	stream      string
-)
+var redisClient *redis.Client
 
 // Init Инициализация подключения к Redis.
 func InitRedis(ctx context.Context, config models.Redis) {
@@ -29,50 +26,4 @@ func InitRedis(ctx context.Context, config models.Redis) {
 		Password: config.Password,
 		DB:       config.DB,
 	})
-	cont = ctx
-	stream = config.Stream
-	logger.Info("Redis initialized")
 }
-
-/*
-// Listen Прослушивать сообщения в каналах.
-func Listen(bus events.EventBus) {
-	for {
-		select {
-		case err := <-bus.Error:
-			logger.Error(err.Error())
-		}
-	}
-}
-
-// ListenStream Прослушивание стрима Redis.
-func ListenStream(handler func(redis.XMessage), errCh chan<- error) {
-	logger.Info("Listening stream...")
-	lastId := "0"
-	for {
-		result, err := client.XRead(cont, &redis.XReadArgs{
-			Count:   100,
-			Block:   0,
-			Streams: []string{stream, lastId},
-		}).Result()
-
-		if err != nil {
-			logger.Errorf("Cant execute XRead command. Error: %v", err)
-			errCh <- err
-			return
-		}
-
-		messages := result[0].Messages
-		countMessages := len(messages)
-
-		if countMessages > 0 {
-			logger.Debugf("XRead iteration from ID: %s. New messages: %d", lastId, countMessages)
-			lastId = messages[countMessages-1].ID
-		}
-
-		for _, message := range messages {
-			handler(message)
-		}
-	}
-}
-*/

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"loyalty_system/logger"
+	logger "github.com/IvanSkripnikov/go-logger"
 )
 
 type ResponseData map[string]interface{}

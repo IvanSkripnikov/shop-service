@@ -10,17 +10,10 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 
-	"loyalty_system/logger"
+	logger "github.com/IvanSkripnikov/go-logger"
 )
 
 const migrationsDir = "./migrations"
-
-type DataBaseConnection struct {
-	host     string
-	db       string
-	user     string
-	password string
-}
 
 var DB *sql.DB
 
