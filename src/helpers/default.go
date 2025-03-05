@@ -6,7 +6,7 @@ import (
 
 func HealthCheck(w http.ResponseWriter, _ *http.Request) {
 	data := ResponseData{
-		"status": "OK",
+		"status": "success",
 	}
 	SendResponse(w, data, "/health", http.StatusOK)
 }

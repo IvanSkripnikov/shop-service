@@ -206,6 +206,10 @@ func WriteOffFromAccount(userID int, balance float32) error {
 func DepositForAccount(userID int, balance float32) error {
 	newAccount := models.Account{UserID: userID, Balance: balance}
 	jsonData, err := json.Marshal(newAccount)
+	if err != nil {
+		logger.Fatalf("Error encoding JSON: %v", err)
+		return err
+	}
 	logger.Infof("json for deposit: %v", string(jsonData))
 
 	client := &http.Client{}
@@ -248,7 +252,7 @@ func createOrder(userID, itemID int, price float32) error {
 		logger.Infof("Can't parse order data %v", err)
 		return err
 	}
-	json.Unmarshal(body, &result)
+	err = json.Unmarshal(body, &result)
 
 	logger.Infof("Data from create payment %v", result)
 
@@ -259,7 +263,7 @@ func createOrder(userID, itemID int, price float32) error {
 	}
 
 	if result["status"] != "Success" {
-		return errors.New("Failed to create order")
+		return errors.New("failed to create order")
 	}
 
 	return nil

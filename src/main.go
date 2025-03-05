@@ -7,6 +7,7 @@ import (
 	"loyalty_system/models"
 
 	logger "github.com/IvanSkripnikov/go-logger"
+	migrator "github.com/IvanSkripnikov/go-migrator"
 )
 
 func main() {
@@ -30,12 +31,10 @@ func main() {
 	}
 
 	// настройка коннекта к redis
-	//bus := events.MakeBus()
-	//go helpers.Listen(bus)
 	helpers.InitRedis(context.Background(), config.Redis)
 
 	// выполнение миграций
-	helpers.CreateTables()
+	migrator.CreateTables(helpers.DB)
 
 	// инициализация REST-api
 	httphandler.InitHTTPServer()
