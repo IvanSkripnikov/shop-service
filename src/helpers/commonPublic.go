@@ -67,7 +67,7 @@ func GetAuth(r *http.Request) (bool, models.User) {
 
 	SessionsMap := GetCurrentSessionData()
 	value, ok := SessionsMap[sessionID]
-	if ok == false {
+	if !ok {
 		return false, user
 	}
 
