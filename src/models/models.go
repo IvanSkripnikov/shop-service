@@ -1,5 +1,7 @@
 package models
 
+const Success = "success"
+
 type Database struct {
 	Address  string
 	Port     int

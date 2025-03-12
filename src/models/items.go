@@ -9,3 +9,8 @@ type Item struct {
 	Updated     int     `json:"updated"`
 	Active      uint8   `json:"active"`
 }
+
+type BuyItem struct {
+	ID     int `json:"id"`
+	Volume int `json:"volume"`
+}

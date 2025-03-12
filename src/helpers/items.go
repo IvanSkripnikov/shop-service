@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
-	"io"
 	"net/http"
 	"strings"
 
@@ -105,14 +103,16 @@ func RemoveItem(w http.ResponseWriter, _ *http.Request) {
 
 func BuyItem(w http.ResponseWriter, r *http.Request, user models.User) {
 	category := "/v1/items/buy"
-	// 1. Достаём товар из базы
-	var item models.Item
 
-	item.ID, _ = getIDFromRequestString(strings.TrimSpace(r.URL.Path))
-	if item.ID == 0 {
-		FormatResponse(w, http.StatusUnprocessableEntity, category)
+	var itemRequest models.BuyItem
+	err := json.NewDecoder(r.Body).Decode(&itemRequest)
+	if checkError(w, err, category) {
 		return
 	}
+
+	// 1. Достаём товар из базы
+	var item models.Item
+	item.ID = itemRequest.ID
 
 	if !isExists("SELECT * FROM items WHERE id = ?", item.ID) {
 		FormatResponse(w, http.StatusNotFound, category)
@@ -134,73 +134,50 @@ func BuyItem(w http.ResponseWriter, r *http.Request, user models.User) {
 		return
 	}
 
-	// 2. Производим списание средств через сервис платежей
-	err = WriteOffFromAccount(user.ID, item.Price)
-	if checkError(w, err, category) {
-		return
+	// 2. Оформляем заказ в сервисе заказов
+	response := "success"
+	newOrder := models.Order{UserID: user.ID, ItemID: item.ID, Volume: itemRequest.Volume, Price: item.Price * float32(itemRequest.Volume)}
+	newOrderResponse, err := CreateQueryWithScalarResponse(http.MethodPost, Config.OrdersServiceUrl+"/v1/orders/create", newOrder)
+	if checkError(w, err, category) || newOrderResponse != models.Success {
+		response = "failure"
+		messageData := map[string]interface{}{
+			"title":       "Failure buy item!",
+			"description": "Something wrong happened during handle your bought: " + item.Title,
+			"user":        user.ID,
+			"category":    "deal",
+		}
+		SendNotification(messageData)
+	} else {
+		messageData := map[string]interface{}{
+			"title":       "Successfully buy item!",
+			"description": "You successfully buy " + item.Title,
+			"user":        user.ID,
+			"category":    "deal",
+		}
+		SendNotification(messageData)
 	}
-
-	// 3. Оформляем заказ в сервисе заказов
-	err = createOrder(user.ID, item.ID, item.Price)
-	if checkError(w, err, category) {
-		return
-	}
-
-	// 4. Информируем клиента об успехе
-	SendSuccessBuyNotification(item, user)
 
 	data := ResponseData{
-		"status": "success",
+		"status": response,
 	}
 	SendResponse(w, data, "/v1/items/create", http.StatusOK)
 }
 
-func SendSuccessBuyNotification(item models.Item, user models.User) {
+func SendNotification(message map[string]interface{}) {
 	_, err := redisClient.Ping(context.Background()).Result()
 	if err != nil {
 		logger.Fatalf("Error connection to Redis: %v", err)
 	}
 
-	messageData := map[string]interface{}{
-		"title":       "Successfully buy item!",
-		"description": "You successfully buy " + item.Title,
-		"user":        user.ID,
-		"category":    "deal",
-	}
-
 	_, err = redisClient.XAdd(context.Background(), &redis.XAddArgs{
 		Stream: Config.Redis.Stream,
-		Values: messageData,
+		Values: message,
 	}).Result()
 	if err != nil {
 		logger.Fatalf("Error sending to redis stream: %v", err)
 	} else {
 		logger.Info("Succsessfuly send to stream")
 	}
-}
-
-func WriteOffFromAccount(userID int, balance float32) error {
-	newAccount := models.Account{UserID: userID, Balance: balance}
-	jsonData, err := json.Marshal(newAccount)
-
-	logger.Infof("json for buy: %v", string(jsonData))
-
-	client := &http.Client{}
-	req, err := http.NewRequest(http.MethodPut, Config.BillingServiceUrl+"/v1/account/buy", bytes.NewBuffer(jsonData))
-	req.Header.Set("Content-Type", "application/json")
-	if err != nil {
-		logger.Fatalf("Error while create PUT deposit request: %v", err)
-		return err
-	}
-
-	resp, err := client.Do(req)
-	logger.Infof("response for make deposit: %v", resp.Body)
-	if err != nil {
-		logger.Fatalf("Error while process PUT deposit request: %v", err)
-		return err
-	}
-
-	return nil
 }
 
 func DepositForAccount(userID int, balance float32) error {
@@ -228,43 +205,6 @@ func DepositForAccount(userID int, balance float32) error {
 	}
 
 	defer resp.Body.Close()
-
-	return nil
-}
-
-func createOrder(userID, itemID int, price float32) error {
-	newOrder := models.Order{UserID: userID, ItemID: itemID, Price: price}
-	jsonData, err := json.Marshal(newOrder)
-	if err != nil {
-		return err
-	}
-	// Отправляем POST-запрос
-	resp, err := http.Post(Config.OrdersServiceUrl+"/v1/orders/create", "application/json", bytes.NewBuffer(jsonData))
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	var result map[string]string
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		logger.Infof("Can't parse order data %v", err)
-		return err
-	}
-	err = json.Unmarshal(body, &result)
-
-	logger.Infof("Data from create payment %v", result)
-
-	// Преобразуем JSON-строку в map
-	if err != nil {
-		logger.Fatalf("Error convert JSON: %v", err)
-		return err
-	}
-
-	if result["status"] != "Success" {
-		return errors.New("failed to create order")
-	}
 
 	return nil
 }

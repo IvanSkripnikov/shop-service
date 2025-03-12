@@ -1,7 +1,9 @@
 package helpers
 
 import (
+	"bytes"
 	"encoding/json"
+	"errors"
 	"io"
 	"loyalty_system/models"
 	"net/http"
@@ -72,4 +74,49 @@ func GetAuth(r *http.Request) (bool, models.User) {
 	}
 
 	return true, value
+}
+
+func CreateQueryWithScalarResponse(method, url string, data any) (string, error) {
+	var err error
+	var response string
+
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return response, err
+	}
+	logger.Infof("json data: %v", string(jsonData))
+
+	client := &http.Client{}
+	req, err := http.NewRequest(method, url, bytes.NewBuffer(jsonData))
+	req.Header.Set("Content-Type", "application/json")
+	if err != nil {
+		return response, err
+	}
+
+	resp, err := client.Do(req)
+	logger.Infof("response for request: %v", resp)
+	if err != nil {
+		return response, err
+	}
+
+	var result map[string]string
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return response, err
+	}
+	err = json.Unmarshal(body, &result)
+
+	logger.Infof("Data from response %v", result)
+
+	// Преобразуем JSON-строку в map
+	if err != nil {
+		return response, err
+	}
+
+	response, ok := result["response"]
+	if !ok {
+		return "", errors.New("failed to get response")
+	}
+
+	return response, nil
 }
