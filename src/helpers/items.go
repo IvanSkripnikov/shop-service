@@ -9,7 +9,8 @@ import (
 
 	"loyalty_system/models"
 
-	logger "github.com/IvanSkripnikov/go-logger"
+	"github.com/IvanSkripnikov/go-gormdb"
+	"github.com/IvanSkripnikov/go-logger"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -18,27 +19,14 @@ func GetItemsList(w http.ResponseWriter, _ *http.Request) {
 	category := "/v1/items/list"
 	var items []models.Item
 
-	query := "SELECT id, title, description, price, created, updated, active FROM items WHERE active = 1"
-	rows, err := DB.Query(query)
-	if err != nil {
-		logger.Error(err.Error())
+	db := gormdb.GetClient(models.ServiceDatabase)
+	err := db.Find(&items).Error
+	if checkError(w, err, category) {
+		return
 	}
 
-	defer func() {
-		_ = rows.Close()
-		_ = rows.Err()
-	}()
-
-	for rows.Next() {
-		item := models.Item{}
-		if err = rows.Scan(&item.ID, &item.Title, &item.Description, &item.Price, &item.Created, &item.Updated, &item.Active); err != nil {
-			logger.Error(err.Error())
-			continue
-		}
-		items = append(items, item)
-	}
 	data := ResponseData{
-		"data": items,
+		"response": items,
 	}
 	SendResponse(w, data, category, http.StatusOK)
 }
@@ -47,35 +35,16 @@ func GetItem(w http.ResponseWriter, r *http.Request) {
 	category := "/v1/item/get"
 	var item models.Item
 
-	item.ID, _ = getIDFromRequestString(strings.TrimSpace(r.URL.Path))
-	if item.ID == 0 {
-		FormatResponse(w, http.StatusUnprocessableEntity, category)
-		return
-	}
+	itemID, _ := getIDFromRequestString(strings.TrimSpace(r.URL.Path))
 
-	if !isExists("SELECT * FROM items WHERE id = ?", item.ID) {
-		FormatResponse(w, http.StatusNotFound, category)
-		return
-	}
-
-	query := "SELECT id, title, description, price, created, updated, active FROM items WHERE id = ? AND active = 1"
-	rows, err := DB.Prepare(query)
-
-	if checkError(w, err, category) {
-		return
-	}
-
-	defer func() {
-		_ = rows.Close()
-	}()
-
-	err = rows.QueryRow(item.ID).Scan(&item.ID, &item.Title, &item.Description, &item.Price, &item.Created, &item.Updated, &item.Active)
+	db := gormdb.GetClient(models.ServiceDatabase)
+	err := db.Where("id = ?", itemID).First(&item).Error
 	if checkError(w, err, category) {
 		return
 	}
 
 	data := ResponseData{
-		"itemGet": "OK",
+		"itemGet": item,
 	}
 	SendResponse(w, data, "/v1/items/get", http.StatusOK)
 }
@@ -112,24 +81,8 @@ func BuyItem(w http.ResponseWriter, r *http.Request, user models.User) {
 
 	// 1. Достаём товар из базы
 	var item models.Item
-	item.ID = itemRequest.ID
-
-	if !isExists("SELECT * FROM items WHERE id = ?", item.ID) {
-		FormatResponse(w, http.StatusNotFound, category)
-		return
-	}
-
-	query := "SELECT id, title, description, price, created, updated, active FROM items WHERE id = ? AND active = 1"
-	rows, err := DB.Prepare(query)
-	if checkError(w, err, category) {
-		return
-	}
-
-	defer func() {
-		_ = rows.Close()
-	}()
-
-	err = rows.QueryRow(item.ID).Scan(&item.ID, &item.Title, &item.Description, &item.Price, &item.Created, &item.Updated, &item.Active)
+	db := gormdb.GetClient(models.ServiceDatabase)
+	err = db.Where("id = ?", item.ID).First(&item).Error
 	if checkError(w, err, category) {
 		return
 	}

@@ -3,10 +3,12 @@ package models
 import (
 	"os"
 	"strconv"
+
+	"github.com/IvanSkripnikov/go-gormdb"
 )
 
 type Config struct {
-	Database               Database
+	Database               gormdb.Database
 	Redis                  Redis
 	RedirectUrl            string
 	RedirectServiceUrl     string
@@ -16,19 +18,15 @@ type Config struct {
 }
 
 func LoadConfig() (*Config, error) {
-	dbPort, err := strconv.Atoi(os.Getenv("DB_PORT"))
-	if err != nil {
-		return nil, err
-	}
 	redisDB, err := strconv.Atoi(os.Getenv("REDIS_DB_NUMBER"))
 	if err != nil {
 		return nil, err
 	}
 
 	return &Config{
-		Database: Database{
+		Database: gormdb.Database{
 			Address:  os.Getenv("DB_ADDRESS"),
-			Port:     dbPort,
+			Port:     os.Getenv("DB_PORT"),
 			User:     os.Getenv("DB_USER"),
 			Password: os.Getenv("DB_PASSWORD"),
 			DB:       os.Getenv("DB_NAME"),

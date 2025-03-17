@@ -2,6 +2,8 @@ package models
 
 const Success = "success"
 
+const ServiceDatabase = "ShopService"
+
 type Database struct {
 	Address  string
 	Port     int
