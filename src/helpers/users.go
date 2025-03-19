@@ -118,13 +118,15 @@ func DepositMe(w http.ResponseWriter, r *http.Request, user models.User) {
 	}
 
 	// Производим начисление средств через сервис платежей
-	err = DepositForAccount(user.ID, deposit.Amount)
-	if checkError(w, err, category) {
-		return
+	response := models.Success
+	newDeposit := models.PaymentParams{UserID: user.ID, Amount: deposit.Amount}
+	newDepositResponse, err := CreateQueryWithScalarResponse(http.MethodPut, Config.PaymentServiceUrl+"/v1/payment/deposit", newDeposit)
+	if checkError(w, err, category) || newDepositResponse != models.Success {
+		response = models.Failure
 	}
 
 	data := ResponseData{
-		"status": "Success",
+		"status": response,
 	}
 	SendResponse(w, data, category, http.StatusOK)
 }

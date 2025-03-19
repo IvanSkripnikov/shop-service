@@ -15,6 +15,7 @@ type Config struct {
 	BillingServiceUrl      string
 	OrdersServiceUrl       string
 	NotificationServiceUrl string
+	PaymentServiceUrl      string
 }
 
 func LoadConfig() (*Config, error) {
@@ -43,6 +44,7 @@ func LoadConfig() (*Config, error) {
 		BillingServiceUrl:      os.Getenv("BILLING_SERViCE_URL"),
 		OrdersServiceUrl:       os.Getenv("ORDERS_SERViCE_URL"),
 		NotificationServiceUrl: os.Getenv("NOTIFICATION_SERViCE_URL"),
+		PaymentServiceUrl:      os.Getenv("PAYMENT_SERVICE_URL"),
 	}, nil
 }
 
@@ -57,7 +59,7 @@ func GetRequiredVariables() []string {
 		// Обязательные переменные для редиректа в сервис авторизации
 		"REDIRECT_URL", "REDIRECT_SERViCE_URL",
 
-		// Url сервиса платежей
+		// Url сервиса счетов
 		"BILLING_SERViCE_URL",
 
 		// Url сервиса заказов
@@ -65,5 +67,8 @@ func GetRequiredVariables() []string {
 
 		// Url сервиса уведомлений
 		"NOTIFICATION_SERViCE_URL",
+
+		// Url сервиса платежей
+		"PAYMENT_SERVICE_URL",
 	}
 }

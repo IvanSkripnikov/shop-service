@@ -1,7 +1,6 @@
 package helpers
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"net/http"
@@ -131,33 +130,4 @@ func SendNotification(message map[string]interface{}) {
 	} else {
 		logger.Info("Succsessfuly send to stream")
 	}
-}
-
-func DepositForAccount(userID int, balance float32) error {
-	newAccount := models.Account{UserID: userID, Balance: balance}
-	jsonData, err := json.Marshal(newAccount)
-	if err != nil {
-		logger.Fatalf("Error encoding JSON: %v", err)
-		return err
-	}
-	logger.Infof("json for deposit: %v", string(jsonData))
-
-	client := &http.Client{}
-	req, err := http.NewRequest(http.MethodPut, Config.BillingServiceUrl+"/v1/account/deposit", bytes.NewBuffer(jsonData))
-	req.Header.Set("Content-Type", "application/json")
-	if err != nil {
-		logger.Fatalf("Error while create PUT deposit request: %v", err)
-		return err
-	}
-
-	resp, err := client.Do(req)
-	logger.Infof("response for make deposit: %v", resp.Body)
-	if err != nil {
-		logger.Fatalf("Error while process PUT deposit request: %v", err)
-		return err
-	}
-
-	defer resp.Body.Close()
-
-	return nil
 }
