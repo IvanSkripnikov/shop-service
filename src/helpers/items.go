@@ -72,6 +72,16 @@ func RemoveItem(w http.ResponseWriter, _ *http.Request) {
 func BuyItem(w http.ResponseWriter, r *http.Request, user models.User) {
 	category := "/v1/items/buy"
 
+	RequestID := r.Header.Get("X-Request-Id")
+	if RequestID == "" {
+		logger.Fatal("Not set X-Request-Id header")
+		data := ResponseData{
+			"response": models.Failure,
+		}
+		SendResponse(w, data, "/v1/items/create", http.StatusOK)
+		return
+	}
+
 	var itemRequest models.BuyItem
 	err := json.NewDecoder(r.Body).Decode(&itemRequest)
 	if checkError(w, err, category) {
@@ -81,17 +91,18 @@ func BuyItem(w http.ResponseWriter, r *http.Request, user models.User) {
 	// 1. Достаём товар из базы
 	var item models.Item
 	db := gormdb.GetClient(models.ServiceDatabase)
-	err = db.Where("id = ?", item.ID).First(&item).Error
+	err = db.Where("id = ?", itemRequest.ID).First(&item).Error
 	if checkError(w, err, category) {
+		logger.Warningf("Not found item: %v", item.ID)
 		return
 	}
 
 	// 2. Оформляем заказ в сервисе заказов
-	response := "success"
-	newOrder := models.Order{UserID: user.ID, ItemID: item.ID, Volume: itemRequest.Volume, Price: item.Price * float32(itemRequest.Volume)}
+	response := models.Success
+	newOrder := models.Order{UserID: user.ID, ItemID: item.ID, Volume: itemRequest.Volume, Price: item.Price * float32(itemRequest.Volume), RequestID: RequestID}
 	newOrderResponse, err := CreateQueryWithScalarResponse(http.MethodPost, Config.OrdersServiceUrl+"/v1/orders/create", newOrder)
 	if checkError(w, err, category) || newOrderResponse != models.Success {
-		response = "failure"
+		response = models.Failure
 		messageData := map[string]interface{}{
 			"title":       "Failure buy item!",
 			"description": "Something wrong happened during handle your bought: " + item.Title,
@@ -110,7 +121,7 @@ func BuyItem(w http.ResponseWriter, r *http.Request, user models.User) {
 	}
 
 	data := ResponseData{
-		"status": response,
+		"response": response,
 	}
 	SendResponse(w, data, "/v1/items/create", http.StatusOK)
 }
