@@ -14,6 +14,7 @@ type Deposit struct {
 }
 
 type PaymentParams struct {
-	UserID int     `gorm:"index;type:int" json:"userId"`
-	Amount float32 `gorm:"type:float" json:"amount"`
+	UserID    int     `gorm:"index;type:int" json:"userId"`
+	Amount    float32 `gorm:"type:float" json:"amount"`
+	RequestID string  `gorm:"index;type:string" json:"requestId"`
 }

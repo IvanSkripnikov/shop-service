@@ -111,6 +111,16 @@ func UpdateMyInfo(w http.ResponseWriter, r *http.Request, user models.User) {
 func DepositMe(w http.ResponseWriter, r *http.Request, user models.User) {
 	category := "/v1/users/me/deposit"
 
+	RequestID := r.Header.Get("X-Request-Id")
+	if RequestID == "" {
+		logger.Fatal("Not set X-Request-Id header")
+		data := ResponseData{
+			"response": models.Failure,
+		}
+		SendResponse(w, data, "/v1/users/me/deposit", http.StatusOK)
+		return
+	}
+
 	var deposit models.Deposit
 	err := json.NewDecoder(r.Body).Decode(&deposit)
 	if checkError(w, err, category) {
@@ -119,7 +129,7 @@ func DepositMe(w http.ResponseWriter, r *http.Request, user models.User) {
 
 	// Производим начисление средств через сервис платежей
 	response := models.Success
-	newDeposit := models.PaymentParams{UserID: user.ID, Amount: deposit.Amount}
+	newDeposit := models.PaymentParams{UserID: user.ID, Amount: deposit.Amount, RequestID: RequestID}
 	newDepositResponse, err := CreateQueryWithScalarResponse(http.MethodPut, Config.PaymentServiceUrl+"/v1/payment/deposit", newDeposit)
 	if checkError(w, err, category) || newDepositResponse != models.Success {
 		response = models.Failure
