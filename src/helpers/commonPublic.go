@@ -26,7 +26,7 @@ func FormatResponse(w http.ResponseWriter, httpStatus int, category string) {
 	w.WriteHeader(httpStatus)
 
 	data := ResponseData{
-		"error": "Unsuccessfull request",
+		"response": "Unsuccessfull request",
 	}
 	SendResponse(w, data, category, httpStatus)
 }

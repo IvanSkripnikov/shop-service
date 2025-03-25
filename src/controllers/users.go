@@ -18,7 +18,7 @@ func GetMyInfoV1(w http.ResponseWriter, r *http.Request) {
 		helpers.GetMyInfo(w, r, user)
 	case http.MethodPut:
 		helpers.UpdateMyInfo(w, r, user)
-		break
+
 	default:
 		helpers.FormatResponse(w, http.StatusMethodNotAllowed, "/v1/users/me")
 	}
@@ -34,7 +34,6 @@ func MyDepositV1(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPut:
 		helpers.DepositMe(w, r, user)
-		break
 	default:
 		helpers.FormatResponse(w, http.StatusMethodNotAllowed, "/v1/users/me/deposit")
 	}
@@ -46,6 +45,15 @@ func GetUsersListV1(w http.ResponseWriter, r *http.Request) {
 		helpers.GetUsersList(w, r)
 	default:
 		helpers.FormatResponse(w, http.StatusMethodNotAllowed, "/v1/users/list")
+	}
+}
+
+func GetActiveUsersListV1(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		helpers.GetActiveUsersList(w, r)
+	default:
+		helpers.FormatResponse(w, http.StatusMethodNotAllowed, "/v1/users/get-active")
 	}
 }
 
@@ -118,5 +126,14 @@ func GetStatisticsV1(w http.ResponseWriter, r *http.Request) {
 		helpers.GetStatistics(w, r)
 	default:
 		helpers.FormatResponse(w, http.StatusMethodNotAllowed, "/v1/users/statistics")
+	}
+}
+
+func UserCategoryUpdateV1(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodPut:
+		helpers.UserCategoryUpdate(w, r)
+	default:
+		helpers.FormatResponse(w, http.StatusMethodNotAllowed, "/v1/users/update")
 	}
 }

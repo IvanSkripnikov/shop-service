@@ -15,8 +15,22 @@ func GetUsersList(w http.ResponseWriter, _ *http.Request) {
 	category := "/v1/users/list"
 	var users []models.User
 
-	db := gormdb.GetClient(models.ServiceDatabase)
-	err := db.Find(&users).Error
+	err := GormDB.Find(&users).Error
+	if checkError(w, err, category) {
+		return
+	}
+
+	data := ResponseData{
+		"response": users,
+	}
+	SendResponse(w, data, category, http.StatusOK)
+}
+
+func GetActiveUsersList(w http.ResponseWriter, _ *http.Request) {
+	category := "/v1/users/list"
+	var users []models.User
+
+	err := GormDB.Where("category_id < ? AND active = ?", models.UserCategoryManager, 1).Find(&users).Error
 	if checkError(w, err, category) {
 		return
 	}
@@ -29,12 +43,14 @@ func GetUsersList(w http.ResponseWriter, _ *http.Request) {
 
 func GetUser(w http.ResponseWriter, r *http.Request) {
 	category := "/v1/users/get"
+
+	userID, err := getIDFromRequestString(strings.TrimSpace(r.URL.Path))
+	if checkError(w, err, category) {
+		return
+	}
+
 	var user models.User
-
-	user.ID, _ = getIDFromRequestString(strings.TrimSpace(r.URL.Path))
-
-	db := gormdb.GetClient(models.ServiceDatabase)
-	err := db.Where("id = ?", user.ID).First(&user).Error
+	err = GormDB.Where("id = ?", userID).First(&user).Error
 	if checkError(w, err, category) {
 		return
 	}
@@ -206,6 +222,34 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	data := ResponseData{
 		"message": "User successfully updated!",
+	}
+	SendResponse(w, data, category, http.StatusOK)
+}
+
+func UserCategoryUpdate(w http.ResponseWriter, r *http.Request) {
+	category := "/v1/users/category-update"
+
+	var userCategoryParams models.UserCategoryParams
+
+	err := json.NewDecoder(r.Body).Decode(&userCategoryParams)
+	if checkError(w, err, category) {
+		return
+	}
+
+	var user models.User
+	err = GormDB.Where("id = ?", userCategoryParams.UserID).First(&user).Error
+	if checkError(w, err, category) {
+		return
+	}
+
+	user.CategoryID = userCategoryParams.CategoryID
+	err = GormDB.Save(&user).Error
+	if checkError(w, err, category) {
+		return
+	}
+
+	data := ResponseData{
+		"response": "success",
 	}
 	SendResponse(w, data, category, http.StatusOK)
 }
