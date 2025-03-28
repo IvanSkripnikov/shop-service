@@ -50,8 +50,8 @@ var routes = []route{
 	newRoute(http.MethodPost, "/v1/items/buy", controllers.BuyItemV1),
 	// items categories
 	newRoute(http.MethodGet, "/v1/item-category/list", controllers.GetItemsCatogoryListV1),
-	newRoute(http.MethodGet, "/v1/item-category/get", controllers.GetItemCategoryV1),
+	newRoute(http.MethodGet, "/v1/item-category/get/([0-9]+)", controllers.GetItemCategoryV1),
 	newRoute(http.MethodPost, "/v1/item-category/create", controllers.CreateItemCategoryV1),
 	newRoute(http.MethodPut, "/v1/item-category/update", controllers.UpdateItemCategoryV1),
-	newRoute(http.MethodDelete, "/v1/item-category/remove", controllers.RemoveItemCategoryV1),
+	newRoute(http.MethodDelete, "/v1/item-category/remove/([0-9]+)", controllers.RemoveItemCategoryV1),
 }

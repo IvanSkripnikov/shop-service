@@ -59,6 +59,9 @@ func CreateItem(w http.ResponseWriter, r *http.Request, user models.User) {
 		FormatResponse(w, http.StatusForbidden, category)
 	}
 
+	item.Created = GetCurrentDate()
+	item.Updated = GetCurrentDate()
+
 	err = GormDB.Create(&item).Error
 	if checkError(w, err, category) {
 		return
@@ -72,19 +75,32 @@ func CreateItem(w http.ResponseWriter, r *http.Request, user models.User) {
 
 func UpdateItem(w http.ResponseWriter, r *http.Request, user models.User) {
 	category := "/v1/items/update"
-	var item models.Item
+	var itemRequest models.Item
 
-	err := json.NewDecoder(r.Body).Decode(&item)
+	err := json.NewDecoder(r.Body).Decode(&itemRequest)
 	if checkError(w, err, category) {
 		return
 	}
 
-	// проверяем, есть ли права на создание товара
+	// проверяем, есть ли права на изменение товара
 	if user.CategoryID == models.UserCategoryStandart {
 		FormatResponse(w, http.StatusForbidden, category)
 	}
 
-	err = GormDB.Save(&item).Error
+	var item models.Item
+	err = GormDB.Where("id = ?", itemRequest.ID).First(&item).Error
+	if checkError(w, err, category) {
+		return
+	}
+
+	err = GormDB.Model(&item).Updates(models.Item{
+		Title:          itemRequest.Title,
+		Description:    itemRequest.Description,
+		Active:         itemRequest.Active,
+		UserCategoryID: itemRequest.UserCategoryID,
+		Price:          itemRequest.Price,
+		Updated:        GetCurrentDate(),
+	}).Error
 	if checkError(w, err, category) {
 		return
 	}
@@ -98,7 +114,7 @@ func UpdateItem(w http.ResponseWriter, r *http.Request, user models.User) {
 func RemoveItem(w http.ResponseWriter, r *http.Request, user models.User) {
 	category := "/v1/items/remove"
 
-	// проверяем, есть ли права на создание товара
+	// проверяем, есть ли права на удаление товара
 	if user.CategoryID == models.UserCategoryStandart {
 		FormatResponse(w, http.StatusForbidden, category)
 	}
