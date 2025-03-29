@@ -80,9 +80,9 @@ func GetAuth(r *http.Request) (bool, models.User) {
 	return true, value
 }
 
-func CreateQueryWithScalarResponse(method, url string, data any) (string, error) {
+func CreateQueryWithResponse(method, url string, data any) (any, error) {
 	var err error
-	var response string
+	var response any
 
 	jsonData, err := json.Marshal(data)
 	if err != nil {
@@ -103,7 +103,7 @@ func CreateQueryWithScalarResponse(method, url string, data any) (string, error)
 		return response, err
 	}
 
-	var result map[string]string
+	var result map[string]any
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return response, err

@@ -16,6 +16,7 @@ type Config struct {
 	OrdersServiceUrl       string
 	NotificationServiceUrl string
 	PaymentServiceUrl      string
+	LoyaltyServiceUrl      string
 }
 
 func LoadConfig() (*Config, error) {
@@ -45,6 +46,7 @@ func LoadConfig() (*Config, error) {
 		OrdersServiceUrl:       os.Getenv("ORDERS_SERViCE_URL"),
 		NotificationServiceUrl: os.Getenv("NOTIFICATION_SERViCE_URL"),
 		PaymentServiceUrl:      os.Getenv("PAYMENT_SERVICE_URL"),
+		LoyaltyServiceUrl:      os.Getenv("LOYALTY_SERVICE_URL"),
 	}, nil
 }
 
@@ -70,5 +72,8 @@ func GetRequiredVariables() []string {
 
 		// Url сервиса платежей
 		"PAYMENT_SERVICE_URL",
+
+		// Url сервиса системы лояльности
+		"LOYALTY_SERVICE_URL",
 	}
 }

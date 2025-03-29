@@ -146,7 +146,7 @@ func DepositMe(w http.ResponseWriter, r *http.Request, user models.User) {
 	// Производим начисление средств через сервис платежей
 	response := models.Success
 	newDeposit := models.PaymentParams{UserID: user.ID, Amount: deposit.Amount, RequestID: RequestID}
-	newDepositResponse, err := CreateQueryWithScalarResponse(http.MethodPut, Config.PaymentServiceUrl+"/v1/payment/deposit", newDeposit)
+	newDepositResponse, err := CreateQueryWithResponse(http.MethodPut, Config.PaymentServiceUrl+"/v1/payment/deposit", newDeposit)
 	if checkError(w, err, category) || newDepositResponse != models.Success {
 		response = models.Failure
 	}
@@ -164,7 +164,7 @@ func AddLoyalty(w http.ResponseWriter, _ *http.Request) {
 	SendResponse(w, data, "/v1/users/add-loyalty", http.StatusOK)
 }
 
-func RemoveLoyalty(w http.ResponseWriter, _ *http.Request) {
+func RemoveUserLoyalty(w http.ResponseWriter, _ *http.Request) {
 	data := ResponseData{
 		"removeLoyalty": "OK",
 	}

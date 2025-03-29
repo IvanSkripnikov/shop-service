@@ -75,10 +75,10 @@ func AddLoyaltyV1(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func RemoveLoyaltyV1(w http.ResponseWriter, r *http.Request) {
+func RemoveUserLoyaltyV1(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodDelete:
-		helpers.RemoveLoyalty(w, r)
+		helpers.RemoveUserLoyalty(w, r)
 	default:
 		helpers.FormatResponse(w, http.StatusMethodNotAllowed, "/v1/users/remove-loyalty")
 	}

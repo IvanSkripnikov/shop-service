@@ -53,6 +53,7 @@ func CreateItemCategory(w http.ResponseWriter, r *http.Request, user models.User
 	// проверяем, есть ли права на создание категории товара
 	if user.CategoryID == models.UserCategoryStandart {
 		FormatResponse(w, http.StatusForbidden, category)
+		return
 	}
 
 	err = GormDB.Create(&itemCategory).Error
@@ -78,6 +79,7 @@ func UpdateItemCategory(w http.ResponseWriter, r *http.Request, user models.User
 	// проверяем, есть ли права на изменение категории товара
 	if user.CategoryID == models.UserCategoryStandart {
 		FormatResponse(w, http.StatusForbidden, category)
+		return
 	}
 
 	var itemCategory models.ItemCategory
@@ -109,6 +111,7 @@ func RemoveItemCategory(w http.ResponseWriter, r *http.Request, user models.User
 	// проверяем, есть ли права на удаление категории товара
 	if user.CategoryID == models.UserCategoryStandart {
 		FormatResponse(w, http.StatusForbidden, category)
+		return
 	}
 
 	itemCategoryID, err := getIDFromRequestString(strings.TrimSpace(r.URL.Path))

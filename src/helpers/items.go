@@ -170,7 +170,7 @@ func BuyItem(w http.ResponseWriter, r *http.Request, user models.User) {
 	// 3. Оформляем заказ в сервисе заказов
 	response := models.Success
 	newOrder := models.Order{UserID: user.ID, ItemID: item.ID, Volume: itemRequest.Volume, Price: item.Price * float32(itemRequest.Volume), RequestID: RequestID}
-	newOrderResponse, err := CreateQueryWithScalarResponse(http.MethodPost, Config.OrdersServiceUrl+"/v1/orders/create", newOrder)
+	newOrderResponse, err := CreateQueryWithResponse(http.MethodPost, Config.OrdersServiceUrl+"/v1/orders/create", newOrder)
 	if checkError(w, err, category) || newOrderResponse != models.Success {
 		response = models.Failure
 		messageData := map[string]interface{}{
