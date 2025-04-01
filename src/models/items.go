@@ -15,8 +15,10 @@ type Item struct {
 func (s Item) TableName() string { return "items" }
 
 type BuyItem struct {
-	ID     int `json:"id"`
-	Volume int `json:"volume"`
+	ID          int    `json:"id"`
+	Volume      int    `json:"volume"`
+	Promocode   string `json:"promocode"`
+	Certificate string `json:"certificate"`
 }
 
 type ItemCategory struct {

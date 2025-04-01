@@ -159,3 +159,49 @@ func RemoveLoyalty(w http.ResponseWriter, r *http.Request, user models.User) {
 	}
 	SendResponse(w, data, category, http.StatusOK)
 }
+
+func GetLoyaltyConfigurationList(w http.ResponseWriter, r *http.Request, user models.User) {
+	category := "/v1/loyalty/configuration/list"
+
+	// проверяем, есть ли права на просмотр лояльностей
+	if user.CategoryID == models.UserCategoryStandart {
+		FormatResponse(w, http.StatusForbidden, category)
+		return
+	}
+
+	loyalty, err := CreateQueryWithResponse(http.MethodGet, Config.LoyaltyServiceUrl+"/v1/loyalty/configuration/list", nil)
+	if checkError(w, err, category) {
+		logger.Errorf("Error while get loyalty list: %v", err)
+	}
+
+	data := ResponseData{
+		"response": loyalty,
+	}
+	SendResponse(w, data, category, http.StatusOK)
+}
+
+func UpdateLoyaltyConfiguration(w http.ResponseWriter, r *http.Request, user models.User) {
+	category := "/v1/loyalty/configuration/update"
+	var loyaltyConfiguration models.LoyaltyConfiguration
+
+	// проверяем, есть ли права на изменение лояльности
+	if user.CategoryID == models.UserCategoryStandart {
+		FormatResponse(w, http.StatusForbidden, category)
+		return
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&loyaltyConfiguration)
+	if checkError(w, err, category) {
+		return
+	}
+
+	response, err := CreateQueryWithResponse(http.MethodPut, Config.LoyaltyServiceUrl+"/v1/loyalty/configuration/update", loyaltyConfiguration)
+	if checkError(w, err, category) {
+		logger.Errorf("Error while get update loyalty: %v", err)
+	}
+
+	data := ResponseData{
+		"response": response,
+	}
+	SendResponse(w, data, category, http.StatusOK)
+}

@@ -49,13 +49,6 @@ func CreateUserCategory(w http.ResponseWriter, _ *http.Request) {
 	SendResponse(w, data, "/v1/user-category/create", http.StatusOK)
 }
 
-func UpdateUserCategory(w http.ResponseWriter, _ *http.Request) {
-	data := ResponseData{
-		"updateUserCategory": "OK",
-	}
-	SendResponse(w, data, "/v1/user-category/update", http.StatusOK)
-}
-
 func RemoveUserCategory(w http.ResponseWriter, _ *http.Request) {
 	data := ResponseData{
 		"removeUserCategory": "OK",

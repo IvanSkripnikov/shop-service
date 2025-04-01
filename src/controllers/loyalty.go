@@ -95,3 +95,33 @@ func RemoveLoyaltyV1(w http.ResponseWriter, r *http.Request) {
 		helpers.FormatResponse(w, http.StatusMethodNotAllowed, "/v1/loyalty/remove")
 	}
 }
+
+func GetLoyaltyConfigurationListV1(w http.ResponseWriter, r *http.Request) {
+	auth, user := helpers.GetAuth(r)
+	if !auth {
+		http.Redirect(w, r, helpers.Config.RedirectUrl+"/signin", http.StatusFound)
+		return
+	}
+
+	switch r.Method {
+	case http.MethodGet:
+		helpers.GetLoyaltyConfigurationList(w, r, user)
+	default:
+		helpers.FormatResponse(w, http.StatusMethodNotAllowed, "/v1/loyalty/configuration/list")
+	}
+}
+
+func UpdateLoyaltyConfigurationV1(w http.ResponseWriter, r *http.Request) {
+	auth, user := helpers.GetAuth(r)
+	if !auth {
+		http.Redirect(w, r, helpers.Config.RedirectUrl+"/signin", http.StatusFound)
+		return
+	}
+
+	switch r.Method {
+	case http.MethodPut:
+		helpers.UpdateLoyaltyConfiguration(w, r, user)
+	default:
+		helpers.FormatResponse(w, http.StatusMethodNotAllowed, "/v1/loyalty/configuration/update")
+	}
+}

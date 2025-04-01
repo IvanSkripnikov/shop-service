@@ -33,15 +33,6 @@ func CreateUserCategoryV1(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func UpdateUserCategoryV1(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodPut:
-		helpers.UpdateUserCategory(w, r)
-	default:
-		helpers.FormatResponse(w, http.StatusMethodNotAllowed, "/v1/user-category/update")
-	}
-}
-
 func RemoveUserCategoryV1(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodDelete:

@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strings"
 
@@ -9,6 +10,7 @@ import (
 
 	"github.com/IvanSkripnikov/go-gormdb"
 	"github.com/IvanSkripnikov/go-logger"
+	"gorm.io/gorm"
 )
 
 func GetUsersList(w http.ResponseWriter, _ *http.Request) {
@@ -236,20 +238,13 @@ func UserCategoryUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user models.User
-	err = GormDB.Where("id = ?", userCategoryParams.UserID).First(&user).Error
-	if checkError(w, err, category) {
-		return
-	}
-
-	user.CategoryID = userCategoryParams.CategoryID
-	err = GormDB.Save(&user).Error
-	if checkError(w, err, category) {
+	err = GormDB.Model(&models.User{}).Where("id = ?", userCategoryParams.UserID).Update("category_id", userCategoryParams.CategoryID).Error
+	if checkError(w, err, category) && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return
 	}
 
 	data := ResponseData{
-		"response": "success",
+		"response": models.Success,
 	}
 	SendResponse(w, data, category, http.StatusOK)
 }

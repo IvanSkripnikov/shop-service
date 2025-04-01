@@ -1,1 +1,1 @@
-INSERT INTO user_category (title) VALUES ('Buyer', 'VIP', 'Manager', 'Admin');
+INSERT INTO user_category (title) VALUES ('Buyer'), ('VIP'), ('Manager'), ('Admin');

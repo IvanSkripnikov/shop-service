@@ -169,7 +169,15 @@ func BuyItem(w http.ResponseWriter, r *http.Request, user models.User) {
 
 	// 3. Оформляем заказ в сервисе заказов
 	response := models.Success
-	newOrder := models.Order{UserID: user.ID, ItemID: item.ID, Volume: itemRequest.Volume, Price: item.Price * float32(itemRequest.Volume), RequestID: RequestID}
+	newOrder := models.Order{
+		UserID:      user.ID,
+		ItemID:      item.ID,
+		Volume:      itemRequest.Volume,
+		Price:       item.Price * float32(itemRequest.Volume),
+		RequestID:   RequestID,
+		Promocode:   itemRequest.Promocode,
+		Certificate: itemRequest.Certificate,
+	}
 	newOrderResponse, err := CreateQueryWithResponse(http.MethodPost, Config.OrdersServiceUrl+"/v1/orders/create", newOrder)
 	if checkError(w, err, category) || newOrderResponse != models.Success {
 		response = models.Failure
