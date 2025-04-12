@@ -20,6 +20,18 @@ var (
 			Help: "Total number of HTTP requests.",
 		},
 	)
+	SuccessOrders = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "success_orders",
+			Help: "Total number success orders.",
+		},
+	)
+	FailureOrders = prometheus.NewCounter(
+		prometheus.CounterOpts{
+			Name: "failure_orders",
+			Help: "Total number failure orders.",
+		},
+	)
 	ResponseHttpStatus = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "response_http_status",
@@ -51,5 +63,5 @@ func addHttpStatusCodeToPrometheus(httpStatusCode int) {
 }
 
 func RegisterCommonMetrics() {
-	prometheus.MustRegister(RequestsByMethodTotal, RequestsTotal, ResponseHttpStatus, RequestLatencyHistogram, RequestLatencySummary)
+	prometheus.MustRegister(RequestsByMethodTotal, RequestsTotal, ResponseHttpStatus, RequestLatencyHistogram, RequestLatencySummary, SuccessOrders, FailureOrders)
 }

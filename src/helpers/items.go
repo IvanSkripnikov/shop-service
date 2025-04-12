@@ -188,6 +188,7 @@ func BuyItem(w http.ResponseWriter, r *http.Request, user models.User) {
 			"category":    "deal",
 		}
 		SendNotification(messageData)
+		FailureOrders.Inc()
 	} else {
 		messageData := map[string]interface{}{
 			"title":       "Successfully buy item!",
@@ -196,6 +197,7 @@ func BuyItem(w http.ResponseWriter, r *http.Request, user models.User) {
 			"category":    "deal",
 		}
 		SendNotification(messageData)
+		SuccessOrders.Inc()
 	}
 
 	data := ResponseData{
